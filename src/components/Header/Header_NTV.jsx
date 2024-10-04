@@ -1,41 +1,47 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import images from '../../images';
 
 function Header_NTV() {
     const [menuVisible, setMenuVisible] = useState(false);
-    const [isHovered, setIsHovered] = useState(false); // Trạng thái để kiểm soát màu sắc
-    const menuRef = useRef(null); // Tham chiếu đến menu
+    const [isHovered, setIsHovered] = useState(false); 
+    const menuRef = useRef(null); 
+    const navigate = useNavigate(); 
 
     const toggleMenu = () => {
         setMenuVisible(!menuVisible);
     };
 
     const handleMouseEnter = () => {
-        setIsHovered(true); // Khi di chuột vào chữ "Đăng tuyển ngay"
+        setIsHovered(true); 
     };
 
     const handleMouseLeave = () => {
-        setIsHovered(false); // Khi di chuột ra ngoài chữ "Đăng tuyển ngay"
+        setIsHovered(false);
     };
 
     const handleMenuMouseEnter = () => {
-        setMenuVisible(true); // Giữ menu mở khi di chuột vào
+        setMenuVisible(true); 
     };
 
     const handleMenuMouseLeave = () => {
-        setMenuVisible(false); // Đóng menu khi di chuột ra ngoài
+        setMenuVisible(false); 
+    };
+
+    // Hàm chuyển trang
+    const handleNavigate = (path) => {
+        navigate(path);
+        setMenuVisible(false);
     };
 
     return (
         <div className="relative">
             <div className="absolute w-full h-[98px] bg-white shadow-md">
                 <div className="flex items-center h-full px-10">
-                    {/* Logo */}
                     <div className="flex items-center">
                         <img src={images['logo.png']} alt="Logo" className="w-[80px] h-[81.88px]" />
                     </div>
 
-                    {/* Button Section - Thêm khoảng cách margin-left (ml-2.5 ~ 10px) */}
                     <div className="flex space-x-10 ml-10">
                         <button className="font-bold text-lg text-black hover:text-[#1A73E8]">Việc làm</button>
                         <button className="font-bold text-lg text-black hover:text-[#1A73E8]">Hồ sơ & CV</button>
@@ -82,9 +88,13 @@ function Header_NTV() {
                             {menuVisible && (
                                 <div ref={menuRef} className="absolute right-0 top-full mt-2 w-[280px] bg-white shadow-lg rounded-[10px] z-10 border border-[#FAF9F9] p-[10px]">
                                     <div className="flex flex-col gap-2">
-                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
+                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/Info')}>
                                             <img src={images['icon_info.png']} alt="Icon" className="w-5 h-5 mr-2" />
                                             Cài đặt thông tin cá nhân
+                                        </button>
+                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/Change_Pass')}>
+                                            <img src={images['icon_password.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                            Đổi mật khẩu
                                         </button>
                                         <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
                                             <img src={images['icon_recruiter.png']} alt="Icon" className="w-5 h-5 mr-2" />
@@ -106,11 +116,7 @@ function Header_NTV() {
                                             <img src={images['icon_security.png']} alt="Icon" className="w-5 h-5 mr-2" />
                                             Cài đặt bảo mật
                                         </button>
-                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
-                                            <img src={images['icon_password.png']} alt="Icon" className="w-5 h-5 mr-2" />
-                                            Đổi mật khẩu
-                                        </button>
-                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
+                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/Logout')}>
                                             <img src={images['icon_logout.png']} alt="Icon" className="w-5 h-5 mr-2" />
                                             Đăng xuất
                                         </button>
