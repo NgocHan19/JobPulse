@@ -1,7 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import images from '../../images'; 
 
 const Info = () => {
+  const [fullName, setFullName] = useState(''); // Trạng thái cho họ và tên
+  const [email, setEmail] = useState(''); // Trạng thái cho email
+  const [phoneNumber, setPhoneNumber] = useState(''); 
+
+  const handleSave = () => {
+
+    alert("Cập nhật thông tin thành công!"); 
+    setFullName('');
+    setEmail('');
+    setPhoneNumber('');
+  };
+
   return (
     <div className="absolute w-full h-full">
       <div className="absolute w-full h-full bg-[#F1F3F4]">
@@ -14,8 +26,12 @@ const Info = () => {
           {/* Họ và tên */}
           <div className="absolute left-[50px] top-[65px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">Họ và tên</label>
-            <div className="flex items-center mt-2"> {/* Thêm mt-1 để tạo khoảng cách */}
-              <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
+            <div className="flex items-center mt-2"> 
+              <input 
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
+              />
               <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
@@ -24,7 +40,11 @@ const Info = () => {
           <div className="absolute left-[50px] top-[160px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">E-mail</label>
             <div className="flex items-center mt-2"> 
-              <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
+              <input 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
+              />
               <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
@@ -33,13 +53,17 @@ const Info = () => {
           <div className="absolute left-[50px] top-[260px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">Số điện thoại</label>
             <div className="flex items-center mt-2"> 
-              <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
+              <input 
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
+              />
               <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
 
           {/* Button Lưu */}
-          <div className="absolute w-[160px] h-[60px] left-[380px] top-[370px] bg-[#609BEA] rounded-[5px] flex items-center justify-center">
+          <div className="absolute w-[160px] h-[60px] left-[380px] top-[370px] bg-[#609BEA] rounded-[5px] flex items-center justify-center" onClick={handleSave}>
             <button className="text-[28px] font-bold text-white">Lưu</button>
           </div>
         </div>
