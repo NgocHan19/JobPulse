@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
 import images from '../../images';
-
+import fakeData from '../../fakeData';
+import { useNavigate } from 'react-router-dom';
 const Register = () => {
-    const [showPassword, setShowPassword] = useState(false);
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isChecked, setIsChecked] = useState(false); 
-
+    const navigate=useNavigate();
     const handleCheckboxChange = () => {
         setIsChecked(!isChecked); 
+    };
+
+    const handleRegister = () => {
+        if (password === confirmPassword && isChecked) {
+            fakeData.users.push({ fullName, email, password });
+            alert("Đăng ký thành công!");
+         
+            setFullName('');
+            setEmail('');
+            setPassword('');
+            setConfirmPassword('');
+            setIsChecked(false);
+            navigate("/Login")
+        } else {
+            alert("Mật khẩu không khớp hoặc bạn chưa đồng ý với điều khoản!");
+        }
     };
 
     return (
@@ -17,13 +37,25 @@ const Register = () => {
             <label className="absolute left-[154px] top-[200px] text-[#868585] font-normal text-[24px] leading-[29px]">Họ và tên</label>
             <div className="absolute left-[154px] top-[240px] w-[827px] h-[60px] bg-white border border-[#A3A3A3] rounded-[5px] flex items-center">
                 <img src={images['icon_account.png']} alt="Icon" className="w-[35px] h-[35px] ml-[15px]" />
-                <input type="text" placeholder="Nhập họ tên..." className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]" />
+                <input 
+                    type="text" 
+                    placeholder="Nhập họ tên..." 
+                    className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                />
             </div>
 
             <label className="absolute left-[154px] top-[340px] text-[#868585] font-normal text-[24px] leading-[29px]">Email</label>
             <div className="absolute left-[154px] top-[380px] w-[827px] h-[60px] bg-white border border-[#A3A3A3] rounded-[5px] flex items-center">
                 <img src={images['icon_email.png']} alt="Icon" className="w-[30px] h-[30px] ml-[15px]" />
-                <input type="email" placeholder="Nhập email..." className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]" />
+                <input 
+                    type="email" 
+                    placeholder="Nhập email..." 
+                    className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]" 
+                    value={email}
+onChange={(e) => setEmail(e.target.value)}
+                />
             </div>
 
             <label className="absolute left-[154px] top-[480px] text-[#868585] font-normal text-[24px] leading-[29px]">Mật khẩu</label>
@@ -33,6 +65,8 @@ const Register = () => {
                     type="password" 
                     placeholder="Nhập mật khẩu..." 
                     className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
             </div>
 
@@ -43,6 +77,8 @@ const Register = () => {
                     type="password" 
                     placeholder="Nhập lại mật khẩu..." 
                     className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                 />
             </div>
 
@@ -59,7 +95,12 @@ const Register = () => {
                 </p>
             </div>
 
-            <button className="absolute left-[154px] top-[796px] w-[827px] h-[60px] bg-[#1A73E8] rounded-[5px] text-[#FFFBFB] font-bold text-[24px]">Đăng ký</button>
+            <button 
+                onClick={handleRegister} 
+                className="absolute left-[154px] top-[796px] w-[827px] h-[60px] bg-[#1A73E8] rounded-[5px] text-[#FFFBFB] font-bold text-[24px]"
+            >
+                Đăng ký
+            </button>
             
             <button className="absolute left-[398px] top-[873px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Bạn đã có tài khoản? Đăng nhập ngay</button>
             <p className="absolute left-[350px] top-[977px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Vui lòng gọi tới số 0123456789 (giờ hành chính).</p>

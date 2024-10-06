@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.0",
+    "my-nodejs-project": "file:",
     "nodemailer": "^6.9.15"
   }
 }
