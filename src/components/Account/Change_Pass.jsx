@@ -1,7 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import images from '../../images'; 
 
 const Change_Pass = () => {
+  const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState(''); 
+  const [confirmPassword, setConfirmPassword] = useState(''); 
+
+  const handleChangePassword = () => {
+    if (newPassword !== confirmPassword) {
+      alert("Mật khẩu mới và nhập lại mật khẩu không khớp!");
+      return;
+    }
+    alert("Đổi mật khẩu thành công!");
+    setEmail('');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
   return (
     <div className="absolute w-full h-full">
       <div className="absolute w-full h-full bg-[#F1F3F4]">
@@ -11,41 +28,62 @@ const Change_Pass = () => {
             Đổi mật khẩu đăng nhập
           </h1>
 
-          {/* Họ và tên */}
+          {/* E-mail đăng nhập */}
           <div className="absolute left-[50px] top-[65px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">E-mail đăng nhập</label>
-            <div className="flex items-center mt-2"> {/* Thêm mt-1 để tạo khoảng cách */}
-              <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
+            <div className="flex items-center mt-2">
+              <input 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
+              />
               <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
 
-          {/* E-mail */}
+          {/* Mật khẩu hiện tại */}
           <div className="absolute left-[50px] top-[160px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">Mật khẩu hiện tại</label>
             <div className="flex items-center mt-2"> 
-              <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
+              <input 
+                type="password" 
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
+              />
               <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
 
+          {/* Mật khẩu mới */}
           <div className="absolute left-[50px] top-[260px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">Mật khẩu mới</label>
             <div className="flex items-center mt-2"> 
-              <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
-              <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
+              <input 
+                type="password" 
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
+              />
+<button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
 
+          {/* Nhập lại mật khẩu mới */}
           <div className="absolute left-[50px] top-[360px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">Nhập lại mật khẩu mới</label>
             <div className="flex items-center mt-2"> 
-              <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
+              <input 
+                type="password" 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
+              />
               <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
 
-          <div className="absolute w-[160px] h-[60px] left-[380px] top-[470px] bg-[#609BEA] rounded-[5px] flex items-center justify-center">
+          <div className="absolute w-[160px] h-[60px] left-[380px] top-[470px] bg-[#609BEA] rounded-[5px] flex items-center justify-center" onClick={handleChangePassword}>
             <button className="text-[28px] font-bold text-white">Lưu</button>
           </div>
         </div>
