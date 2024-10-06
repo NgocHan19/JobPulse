@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import images from '../../images';
 
 function Header() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative">
       <div className="flex items-center justify-between bg-white h-[98px] px-10">
@@ -22,10 +25,16 @@ function Header() {
         </div>
 
         <div className="flex space-x-4">
-          <button className="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition duration-300">
+          <button 
+            className="bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition duration-300"
+            onClick={() => navigate('/Register')} 
+          >
             Đăng ký
           </button>
-          <button className="bg-white border border-blue-600 text-blue-600 font-bold py-2 px-4 rounded hover:bg-blue-50 transition duration-300">
+          <button 
+            className="bg-white border border-blue-600 text-blue-600 font-bold py-2 px-4 rounded hover:bg-blue-50 transition duration-300"
+            onClick={() => navigate('/Login')} 
+          >
             Đăng nhập
           </button>
         </div>
