@@ -65,7 +65,7 @@ const Change_Pass = () => {
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" 
               />
-<button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
+              <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>
           </div>
 
