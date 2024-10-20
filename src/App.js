@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-// import {BrowserRouter,Routes,Route,} from "react-router-dom";
+//import {BrowserRouter,Routes,Route,} from "react-router-dom";
 import Login from './components/Account/Login';
 import Register from './components/Account/Register';
 import Header from './components/Header/Header';
@@ -14,16 +14,14 @@ import Change_Pass from './components/Account/Change_Pass';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>        
-        <Route path="/" element = { <HomePage/>}/>
-        <Route path="/Login" element = { <Login/>}/>
-        <Route path="/Register" element = { <Register/>}/>
-        <Route path="/Change_Pass" element = { <Change_Pass/>}/>
-        <Route path="/Info" element = { <Info/>}/>
+    <Router>
+      <Routes>
+        <Route path="/" element={<><Header /><HomePage /><Footer /></>} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/homepage" element={<><Header_NTV /><HomePage /><Footer /></>} />
       </Routes>
-    </BrowserRouter>
-    
+    </Router>
   );
 }
 

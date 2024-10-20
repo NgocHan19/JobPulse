@@ -1,20 +1,34 @@
 import React, { useState } from 'react';
 import images from '../../images';
-import fakeData from '../../fakeData'; 
 import { useNavigate } from 'react-router-dom';
+
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate=useNavigate();
-  const handleLogin = () => {
-    const user = fakeData.users.find(user => user.email === email && user.password === password);
-    if (user) {
-      alert("Đăng nhập thành công!");
-      setEmail('');
-      setPassword('');
-      navigate("/")
-    } else {
-      alert("Email hoặc mật khẩu không chính xác!");
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      // Thay thế phần này bằng API thực tế của bạn để xác thực người dùng
+      const response = await fetch('/api/login', { // Đường dẫn API của bạn
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        alert("Đăng nhập thành công!");
+        setEmail('');
+        setPassword('');
+        navigate("/");
+      } else {
+        alert("Email hoặc mật khẩu không chính xác!");
+      }
+    } catch (error) {
+      console.error('Lỗi khi đăng nhập:', error);
+      alert("Có lỗi xảy ra, vui lòng thử lại sau!");
     }
   };
 
@@ -57,7 +71,7 @@ const Login = () => {
       </div>
 
       <button className="absolute left-[398px] top-[580px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Bạn chưa có tài khoản? Đăng ký ngay</button>
-<p className="absolute left-[350px] top-[684px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Vui lòng gọi tới số 0123456789 (giờ hành chính).</p>
+      <p className="absolute left-[350px] top-[684px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Vui lòng gọi tới số 0123456789 (giờ hành chính).</p>
       <p className="absolute left-[402px] top-[643px] text-[#5E5D5D] font-bold text-[20px] leading-[24px]">Bạn gặp khó khăn khi tạo tài khoản?</p>
       
       <div className="absolute left-[226px] top-[670px] w-[700px] h-0 border border-[#D9D9D9]" />
