@@ -9,8 +9,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      // Thay thế phần này bằng API thực tế của bạn để xác thực người dùng
-      const response = await fetch('/api/login', { // Đường dẫn API của bạn
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

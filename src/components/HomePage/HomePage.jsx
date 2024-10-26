@@ -1,21 +1,35 @@
-import React from 'react'
-import Header from '../Header/Header'
-import Footer from '../Footer/Footer'
+import React from 'react';
+import images from '../../images';
 
 const HomePage = () => {
   return (
     <div>
       {/* Search Bar Section */}
-      <div className="bg-blue-100 w-full h-[100px] flex items-center justify-center">
-        <div className="w-full max-w-7xl flex items-center">
-          <input 
-            type="text" 
-            placeholder="Vị trí ứng tuyển" 
-            className="p-2 w-2/3 rounded-l-md border border-gray-300"
-          />
-          <button className="bg-blue-500 text-white p-2 rounded-r-md">
-            Tìm kiếm
-          </button>
+      <div className="bg-gradient-to-b from-[#DBEAFE]  to-[#90BBF4] w-full h-[200px] flex">
+        <div className="w-[500px] max-w-2xl ml-40 mt-10">
+          <div className="relative w-full">
+            <input 
+              type="text" 
+              placeholder="Vị trí ứng tuyển" 
+              className="p-2 pl-10 w-full rounded-md border-gray-300"
+            />
+            <img 
+              src={images['icon_search.png']} 
+              alt="Search" 
+              className="absolute left-3 top-3 w-[20px] h-[20px]" 
+            />
+            <div className="flex items-center border-l-2 pl-2 ml-2 h-full">
+              <span className="text-gray-700">Hà Nội</span>
+              <img 
+                src={images['icon_downarrow.png']} 
+                alt="Down Arrow" 
+                className="w-[20px] h-[20px] ml-1"
+              />
+            </div>
+            <button className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-[#1A73E8] to-[#1A73E8] text-white p-2 rounded-r-md">
+              Tìm kiếm
+            </button>
+          </div>
         </div>
       </div>
 
