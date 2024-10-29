@@ -6,6 +6,7 @@ import Register from './components/Account/Register';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import HomePage from './components/HomePage/HomePage';
+import HomePage_Login from './components/HomePage/HomePage_Login';
 import Logout from './components/Account/Logout';
 import Header_NTV from './components/Header/Header_NTV';
 import Info from './components/Account/Info';
@@ -15,15 +16,18 @@ import Form_Authen from './components/Account/Form_Authen';
 
 function App() {
   return (
-    // <Router>
-    //   <Routes>
-    //     <Route path="/" element={<><Header /><HomePage /><Footer /></>} />
-    //     <Route path="/register" element={<Register />} />
-    //     <Route path="/login" element={<Login />} />
-    //     <Route path="/homepage" element={<><Header_NTV /><HomePage /><Footer /></>} />
-    //   </Routes>
-    // </Router>
-    <Form_Authen/>
+    <Router>
+      <Routes>
+        <Route path="/home" element={<><Header /><HomePage /><Footer /></>} />
+        <Route path="/home-logged-in" element={<><Header_NTV /><HomePage_Login /><Footer /></>} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/authen" element={<Form_Authen />} /> 
+        <Route path="/login" element={<Login />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="/info" element={<Info />} />
+        <Route path="/change-pass" element={<Change_Pass />} />
+      </Routes>
+    </Router>
   );
 }
 

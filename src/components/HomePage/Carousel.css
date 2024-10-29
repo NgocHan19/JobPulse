@@ -1,0 +1,20 @@
+.carousel-container {
+  overflow: hidden; /* Ẩn các hình không hiển thị */
+  position: relative;
+}
+
+.carousel-inner {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-inner img {
+  min-width: calc(25% - 15px); /* Chiếm 25% chiều rộng trừ đi khoảng cách giữa */
+  margin-right: 20px; /* Khoảng cách giữa các hình */
+  height: auto; /* Tự động điều chỉnh chiều cao hình ảnh */
+}
+
+/* Để đảm bảo hình cuối cùng không có khoảng cách bên phải */
+.carousel-inner img:last-child {
+  margin-right: 0;
+}
