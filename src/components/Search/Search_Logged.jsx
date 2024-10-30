@@ -52,7 +52,7 @@ const Search_Logged = () => {
   }, []);
 
   return (
-    <div className="absolute w-full h-[100px] left-0 z-50">
+    <div className="absolute w-full h-[100px] top-[99px] left-0 z-50">
       <div className="absolute w-full h-[100px] bg-gradient-to-b from-[#1A73E8]/30 to-[#1A73E8]/60 " />
       <div className="absolute w-[1200px] h-[50px] left-[180px] bg-white rounded-[30px] flex items-center justify-between top-[50%] transform -translate-y-1/2 px-5 gap-5">
         
