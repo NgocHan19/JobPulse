@@ -8,28 +8,31 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-      e.preventDefault();
+    e.preventDefault();
 
-      try {
-          const response = await fetch('http://localhost:5000/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, password }),
-          });
+    try {
+        const response = await fetch('http://localhost:5000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
 
-          const data = await response.json();
+        const data = await response.json();
+        console.log(data); // Thêm console log để xem phản hồi
 
-          if (response.ok) {
-              alert(data.message);
-              navigate('/home-logged-in');
-          } else {
-              alert(data.message);
-          }
-      } catch (error) {
-          console.error("Lỗi:", error);
-          alert("Có lỗi xảy ra khi đăng nhập.");
-      }
-  };
+        if (response.ok) {
+            alert(data.message);
+            navigate('/home-logged-in');
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        alert("Có lỗi xảy ra khi đăng nhập.");
+    }
+};
+
+  
 
 
   return (

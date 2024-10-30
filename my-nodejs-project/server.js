@@ -93,11 +93,11 @@ app.post('/login', async (req, res) => {
 
   try {
       // Kết nối đến cơ sở dữ liệu
-      let pool = await sql.connect(dbConfig);
+      let pool = await sql.connect(config); // Sửa thành config
 
       // Kiểm tra xem tài khoản có tồn tại không
       const result = await pool.request()
-          .input('email', sql.VarChar, email)
+          .input('email', sql.NVarChar, email) // Thay đổi kiểu dữ liệu ở đây
           .query(`
               SELECT AccountID, Password, IsVerified
               FROM Account
@@ -129,6 +129,7 @@ app.post('/login', async (req, res) => {
       res.status(500).json({ message: "Đã xảy ra lỗi. Vui lòng thử lại sau." });
   }
 });
+
 
 
 
