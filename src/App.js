@@ -16,7 +16,7 @@ import Saved_Jobs from './components/Saved_Jobs/Saved_Jobs';
 import Form_Saved_Empty from './components/Saved_Jobs/Form_Saved_Empty';
 import Search_Logged from './components/Search/Search_Logged';
 import Search_Home_Logged from './components/Search/Search_Home_Logged';
-
+import Job_Details from './components/Job_Details/Job_Details';
 
 
 function App() {
@@ -34,6 +34,7 @@ function App() {
         <Route path="/change-pass" element={<Change_Pass />} />
         <Route path="/saved-jobs" element={<><Header /><Search_Logged /><Saved_Jobs /><Footer /></>} />
         <Route path="/saved-jobs-empty" element={<Form_Saved_Empty />} />
+        <Route path="/job-details" element={<><Header /><Search_Logged /><Job_Details /><Footer /></>} />
       </Routes>
     </Router>
   );
