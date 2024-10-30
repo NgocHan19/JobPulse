@@ -2,35 +2,38 @@ import React, { useState } from 'react';
 import images from '../../images';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
+function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    try {
-      // Thay thế phần này bằng API thực tế của bạn để xác thực người dùng
-      const response = await fetch('/api/login', { // Đường dẫn API của bạn
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  // Hàm xử lý đăng nhập
+  const handleLogin = async (e) => {
+      e.preventDefault();
 
-      if (response.ok) {
-        alert("Đăng nhập thành công!");
-        setEmail('');
-        setPassword('');
-        navigate("/");
-      } else {
-        alert("Email hoặc mật khẩu không chính xác!");
+      try {
+          const response = await fetch('http://localhost:5000/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+              // Đăng nhập thành công, chuyển hướng đến trang HomePage
+              alert(data.message);
+              navigate('/homepage');
+          } else {
+              // Nếu không thành công, hiển thị lỗi
+              alert(data.message);
+          }
+      } catch (error) {
+          console.error("Lỗi:", error);
+          alert("Có lỗi xảy ra khi đăng nhập.");
       }
-    } catch (error) {
-      console.error('Lỗi khi đăng nhập:', error);
-      alert("Có lỗi xảy ra, vui lòng thử lại sau!");
-    }
   };
+
 
   return (
     <div className="relative w-full h-[1080px] bg-white">
