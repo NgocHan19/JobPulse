@@ -17,6 +17,8 @@ import Form_Saved_Empty from './components/Saved_Jobs/Form_Saved_Empty';
 import Search_Logged from './components/Search/Search_Logged';
 import Search_Home_Logged from './components/Search/Search_Home_Logged';
 import Job_Details from './components/Job_Details/Job_Details';
+import Company_List from './components/Company/Company_List';
+import Top_Company from './components/Company/Top_Company';
 
 
 function App() {
@@ -35,6 +37,8 @@ function App() {
         <Route path="/saved-jobs" element={<><Header /><Search_Logged /><Saved_Jobs /><Footer /></>} />
         <Route path="/saved-jobs-empty" element={<Form_Saved_Empty />} />
         <Route path="/job-details" element={<><Header /><Search_Logged /><Job_Details /><Footer /></>} />
+        <Route path="/company-list" element={<><Header /><Company_List /><Footer /></>} />
+        <Route path="/company-top" element={<><Header /><Top_Company /><Footer /></>} />
       </Routes>
     </Router>
   );
