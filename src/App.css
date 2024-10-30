@@ -36,3 +36,31 @@
     transform: rotate(360deg);
   }
 }
+
+
+.footer {
+  position: relative; /* Use relative positioning */
+  width: 100%;
+  height: auto; /* Adjust height automatically based on content */
+  padding: 20px; /* Add some padding */
+  background-color: white; /* Ensure it has a background */
+  clear: both; /* Clear floats if any */
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Make sure it covers the entire viewport height */
+}
+
+.header {
+  flex: 0 0 auto; /* Header takes its height */
+}
+
+.footer {
+  flex: 0 0 auto; /* Footer takes its height */
+}
+
+.main-content {
+  flex: 1; /* Main content takes the remaining space */
+}

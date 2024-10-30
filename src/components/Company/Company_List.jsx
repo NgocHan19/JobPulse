@@ -6,9 +6,9 @@ const Company_List = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative w-full h-[1626px] border-l border-black">
-      <div className="absolute w-full h-full left-0 top-0 bg-[#FAF9F9]"> 
-        <div className="absolute w-full h-[230px] top-0 bg-gradient-to-r from-[#E0F2FF] via-[#A1C6EA] to-[#1A73E8] opacity-65">
+    <div className="relative w-full h-[1500px] border-l border-black">
+      <div className="absolute w-full h-full bg-[#FAF9F9]"> 
+        <div className="absolute w-full h-[230px] bg-gradient-to-r from-[#E0F2FF] via-[#A1C6EA] to-[#1A73E8] opacity-65">
           <div className="absolute left-[50px] top-[40px] flex space-x-5">
             <button 
               onClick={() => navigate('/company-list')}

@@ -3,8 +3,8 @@ import images from '../../images';
 
 const Info = () => {
   return (
-    <div className="absolute w-full h-full">
-      <div className="absolute w-full h-full bg-[#F1F3F4]">
+    <div className="absolute w-full h-[800px]">
+      <div className="absolute w-full h-[800px] bg-[#F1F3F4]">
         <div className="absolute w-[900px] h-[482px] left-[80px] top-[50px]">
           <div className="absolute w-full h-full bg-white rounded-[25px]"></div>
           <h1 className="absolute w-[341px] h-[34px] left-[30px] top-[15px] font-bold text-[28px] text-[#525050]">
@@ -14,7 +14,7 @@ const Info = () => {
           {/* Họ và tên */}
           <div className="absolute left-[50px] top-[65px]">
             <label className="w-[200px] h-[24px] text-[20px] text-black">Họ và tên</label>
-            <div className="flex items-center mt-2"> {/* Thêm mt-1 để tạo khoảng cách */}
+            <div className="flex items-center mt-2">
               <input className="w-[700px] h-[40px] bg-white border border-[#525050] rounded-[10px] px-2" />
               <button className="w-[140px] h-[34px] font-bold text-[20px] text-[#609BEA] bg-transparent">Chỉnh sửa</button>
             </div>

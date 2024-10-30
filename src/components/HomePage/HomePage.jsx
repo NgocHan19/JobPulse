@@ -165,12 +165,11 @@ const HomePage = () => {
       </div>
 
 
-      {/* Container 1 */}
+      {/* Việc làm tốt nhất */}
       <div className="absolute w-full h-[460px] top-[250px] bg-[#F1F3F4]">
         <h1 className="absolute left-[100px] top-[20px] text-2xl leading-[30px] font-bold text-[#1A73E8] font-inter">
           Việc làm tốt nhất
         </h1>
-
         <div className="absolute w-full h-[55px] flex items-center top-[60px]">
           <div className="relative">
             <div className="w-[300px] h-[40px] bg-white border border-[#C3C3C3] border-opacity-80 rounded-[5px] flex items-center ml-[100px]">
@@ -184,7 +183,6 @@ const HomePage = () => {
                 onClick={toggleFilterDropdown}
               />
             </div>
-
             {filterDropdownOpen && (
               <div className="absolute w-[230px] h-[160px] bg-white border rounded-lg shadow-lg top-[50px] left-[100px] p-4 overflow-y-auto z-50">
                 <div className="space-y-2">
@@ -288,7 +286,8 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Container 2 */}
+
+      {/* Danh sách giới thiệu của công ty */}
       <div className="absolute w-full top-[700px]">
         <div className="relative bg-white flex items-center justify-between px-2 h-[300px]">
           <button
@@ -302,7 +301,6 @@ const HomePage = () => {
             />
           </button>
 
-          {/* Hiển thị các hình ảnh hiện tại */}
           <div className="flex items-center justify-center space-x-5">
             {displayedImages.map((image, index) => (
               <img
@@ -329,140 +327,138 @@ const HomePage = () => {
 
 
 
-{/* Container 3 */}
-<div className="absolute w-full h-[460px] top-[1000px] bg-[#F1F3F4]">
-  <h1 className="absolute left-[150px] top-[20px] text-2xl leading-[30px] font-bold text-[#1A73E8] font-inter">
-    Việc làm hấp dẫn
-  </h1>
+      {/* Việc làm hấp dẫn */}
+      <div className="absolute w-full h-[460px] top-[1000px] bg-[#F1F3F4]">
+        <h1 className="absolute left-[150px] top-[20px] text-2xl leading-[30px] font-bold text-[#1A73E8] font-inter">
+          Việc làm hấp dẫn
+        </h1>
+        <div className="absolute w-full h-[55px] flex items-center top-[60px]">
+          <div className="relative">
+            <div className="w-[300px] h-[40px] bg-white border border-[#C3C3C3] border-opacity-80 rounded-[5px] flex items-center ml-[150px]">
+              <img src={images['icon_filter.png']} className="w-[20px] h-[20px] mx-4" alt="Icon filter" />
+              <span className="text-base leading-[20px] font-semibold text-[#CCCCCC] mr-4">Lọc theo:</span>
+              <span className="text-sm leading-[20px] font-bold text-gray-600">{selectedFilter1}</span>
+              <img
+                src={images['icon_down_arrow_black.png']}
+                alt="dropdown-icon"
+                className="w-[20px] h-[20px] ml-auto mr-[10px] cursor-pointer"
+                onClick={toggleFilterDropdown1}
+              />
+            </div>
 
-  <div className="absolute w-full h-[55px] flex items-center top-[60px]">
-    <div className="relative">
-      <div className="w-[300px] h-[40px] bg-white border border-[#C3C3C3] border-opacity-80 rounded-[5px] flex items-center ml-[150px]">
-        <img src={images['icon_filter.png']} className="w-[20px] h-[20px] mx-4" alt="Icon filter" />
-        <span className="text-base leading-[20px] font-semibold text-[#CCCCCC] mr-4">Lọc theo:</span>
-        <span className="text-sm leading-[20px] font-bold text-gray-600">{selectedFilter1}</span>
-        <img
-          src={images['icon_down_arrow_black.png']}
-          alt="dropdown-icon"
-          className="w-[20px] h-[20px] ml-auto mr-[10px] cursor-pointer"
-          onClick={toggleFilterDropdown1}
-        />
-      </div>
+            {filterDropdownOpen && (
+              <div className="absolute w-[230px] h-[160px] bg-white border rounded-lg shadow-lg top-[50px] left-[200px] p-4 overflow-y-auto z-50">
+                <div className="space-y-2">
+                  {filterOptions1.map((option, index) => (
+                    <p
+                      key={index}
+                      className={`font-normal text-base cursor-pointer ${selectedFilter1 === option ? 'text-[#1A73E8]' : 'text-black'}`}
+                      onClick={() => handleFilterClick1(option)}
+                    >
+                      {option}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
-      {filterDropdownOpen && (
-        <div className="absolute w-[230px] h-[160px] bg-white border rounded-lg shadow-lg top-[50px] left-[200px] p-4 overflow-y-auto z-50">
-          <div className="space-y-2">
-            {filterOptions1.map((option, index) => (
-              <p
-                key={index}
-                className={`font-normal text-base cursor-pointer ${selectedFilter1 === option ? 'text-[#1A73E8]' : 'text-black'}`}
-                onClick={() => handleFilterClick1(option)}
+          <div className="flex items-center ml-[100px] space-x-2.5">
+            <img 
+              src={images['icon_page_left.png']} 
+              className="w-[30px] h-[30px] cursor-pointer" 
+              alt="Icon page left" 
+              onClick={() => handleSelect('Previous')}
+            />
+            <button
+              className={`text-base leading-[22px] font-bold text-white rounded-[15px] w-[120px] h-[40px] ${selectedRegion === 'Ngẫu nhiên' ? 'bg-[#1A73E8]' : 'bg-[#1A73E8]'}`}
+              onClick={() => handleSelect('Ngẫu nhiên')}
+            >
+              Ngẫu nhiên
+            </button>
+            {['Hà Nội', 'Hồ Chí Minh'].map((region, index) => (
+              <button 
+                key={index} 
+                className={`text-base leading-[22px] font-normal text-black bg-white w-[120px] h-[40px] rounded-[15px] ${selectedRegion === region ? 'bg-[#1A73E8] text-white' : ''}`} 
+                onClick={() => handleSelect(region)}
               >
-                {option}
-              </p>
+                {region}
+              </button>
             ))}
-          </div>
-        </div>
-      )}
-    </div>
-
-    <div className="flex items-center ml-[100px] space-x-2.5">
-      <img 
-        src={images['icon_page_left.png']} 
-        className="w-[30px] h-[30px] cursor-pointer" 
-        alt="Icon page left" 
-        onClick={() => handleSelect('Previous')}
-      />
-      <button
-        className={`text-base leading-[22px] font-bold text-white rounded-[15px] w-[120px] h-[40px] ${selectedRegion === 'Ngẫu nhiên' ? 'bg-[#1A73E8]' : 'bg-[#1A73E8]'}`}
-        onClick={() => handleSelect('Ngẫu nhiên')}
-      >
-        Ngẫu nhiên
-      </button>
-      {['Hà Nội', 'Hồ Chí Minh'].map((region, index) => (
-        <button 
-          key={index} 
-          className={`text-base leading-[22px] font-normal text-black bg-white w-[120px] h-[40px] rounded-[15px] ${selectedRegion === region ? 'bg-[#1A73E8] text-white' : ''}`} 
-          onClick={() => handleSelect(region)}
-        >
-          {region}
-        </button>
-      ))}
-      <img 
-        src={images['icon_page_right.png']} 
-        className="w-[30px] h-[30px] cursor-pointer" 
-        alt="Icon page right" 
-        onClick={() => handleSelect('Next')}
-      />
-    </div>
-  </div>
-
-  {/* Hình ảnh công việc hấp dẫn */}
-  <div className="mt-[150px] ml-[150px] w-[1000px] flex flex-wrap gap-5">
-    {Array(4).fill(0).map((_, index) => (
-      <div key={index} className="relative w-[420px] h-[105px] bg-white rounded-md">
-        <div className="absolute w-[70px] h-[76.25px] left-[20px] top-[15px]">
-          <img src={images['image1.png']} alt="Company" className="w-full h-full object-cover" />
-        </div>
-
-        <div className="absolute left-[130px] top-[10px]">
-          <button className="text-base font-normal text-black mb-1 max-w-[220px] truncate">Tên vị trí ứng tuyển</button>
-          <p className="text-sm font-normal text-gray-400 mb-1 max-w-[250px] truncate">Tên công ty</p>
-        </div>
-
-        <div className="absolute left-[130px] top-[65px] flex space-x-2 mt-2">
-          <div className="w-[80px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
-            <p className="text-xs text-black">Giá</p>
-          </div>
-          <div className="w-[100px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
-            <p className="text-xs text-black">Địa điểm</p>
+            <img 
+              src={images['icon_page_right.png']} 
+              className="w-[30px] h-[30px] cursor-pointer" 
+              alt="Icon page right" 
+              onClick={() => handleSelect('Next')}
+            />
           </div>
         </div>
 
-        <div className="absolute top-[8px] right-[10px] w-[45px] h-[20px] bg-red-500 rounded-full flex items-center justify-center">
-          <p className="text-xs text-white">Hot</p>
+        <div className="mt-[150px] ml-[150px] w-[1000px] flex flex-wrap gap-5">
+          {Array(4).fill(0).map((_, index) => (
+            <div key={index} className="relative w-[420px] h-[105px] bg-white rounded-md">
+              <div className="absolute w-[70px] h-[76.25px] left-[20px] top-[15px]">
+                <img src={images['image1.png']} alt="Company" className="w-full h-full object-cover" />
+              </div>
+
+              <div className="absolute left-[130px] top-[10px]">
+                <button className="text-base font-normal text-black mb-1 max-w-[220px] truncate">Tên vị trí ứng tuyển</button>
+                <p className="text-sm font-normal text-gray-400 mb-1 max-w-[250px] truncate">Tên công ty</p>
+              </div>
+
+              <div className="absolute left-[130px] top-[65px] flex space-x-2 mt-2">
+                <div className="w-[80px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
+                  <p className="text-xs text-black">Giá</p>
+                </div>
+                <div className="w-[100px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
+                  <p className="text-xs text-black">Địa điểm</p>
+                </div>
+              </div>
+
+              <div className="absolute top-[8px] right-[10px] w-[45px] h-[20px] bg-red-500 rounded-full flex items-center justify-center">
+                <p className="text-xs text-white">Hot</p>
+              </div>
+            </div>
+          ))}
+
+          <div className="absolute top-[20px] right-[120px] w-[305.25px] h-[420px]">
+            <img
+              src={images['image3.png']}
+              alt="Large Image"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+
+        <div className="relative w-full h-full left-[480px] top-[20px]">
+          <div className="absolute w-[187px] h-[40px] bg-[#F1F3F4] flex items-center justify-between px-2"> 
+            <button className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer">
+              <img 
+                src={images['icon_page_left.png']} 
+                alt="Icon 9" 
+                className="w-[30px] h-[30px] object-cover"
+              />
+            </button>
+            
+            <div className="flex-grow flex items-center justify-center">
+              <p className="font-inter font-normal text-base leading-[19px] text-[#A2A2A2]">
+                1/10 trang
+              </p>
+            </div>
+
+            <button className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer">
+              <img 
+                src={images['icon_page_right.png']} 
+                alt="Icon 10" 
+                className="w-[30px] h-[30px] object-cover"
+              />
+            </button>
+          </div>
         </div>
       </div>
-    ))}
-
-    <div className="absolute top-[20px] right-[120px] w-[305.25px] h-[420px]">
-      <img
-        src={images['image3.png']}
-        alt="Large Image"
-        className="w-full h-full object-cover"
-      />
-    </div>
-  </div>
-
-  <div className="relative w-full h-full left-[480px] top-[20px]">
-    <div className="absolute w-[187px] h-[40px] bg-[#F1F3F4] flex items-center justify-between px-2"> 
-      <button className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer">
-        <img 
-          src={images['icon_page_left.png']} 
-          alt="Icon 9" 
-          className="w-[30px] h-[30px] object-cover"
-        />
-      </button>
-      
-      <div className="flex-grow flex items-center justify-center">
-        <p className="font-inter font-normal text-base leading-[19px] text-[#A2A2A2]">
-          1/10 trang
-        </p>
-      </div>
-
-      <button className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer">
-        <img 
-          src={images['icon_page_right.png']} 
-          alt="Icon 10" 
-          className="w-[30px] h-[30px] object-cover"
-        />
-      </button>
-    </div>
-  </div>
-</div>
 
 
-      {/* Container 4 */}
+      {/* Top ngành nghề nổi bật */}
       <div className="absolute w-full h-[600px] top-[1480px] bg-white">
         <div className="flex items-center justify-between mx-[100px] mt-[20px]">
           <h2 className="font-bold text-[28px] leading-[34px] text-[#1A73E8]">
@@ -505,10 +501,6 @@ const HomePage = () => {
           ))}
         </div>
       </div>
-
-
-
-
     </div>
   );
 };
