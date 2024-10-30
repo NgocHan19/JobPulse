@@ -123,9 +123,9 @@ const HomePage_Login = () => {
 
 
   return (
-    <div className="w-full h-[2080px] bg-white relative">
+    <div className="w-full h-[2080px] mt-[200px] bg-white relative">
       {/* Banner */}
-      <div className="absolute w-full h-[250px] left-0 bg-gradient-to-r from-[#1A73E8]/35 via-[#1A73E8]/60 to-[#1A73E8]/60">
+      <div className="absolute w-full h-[250px] mt-[200px] left-0 bg-gradient-to-r from-[#1A73E8]/35 via-[#1A73E8]/60 to-[#1A73E8]/60">
         <div className="absolute w-[700px] h-[50px] top-[30px] left-[150px] bg-white rounded-lg flex items-center pl-3 pr-3 space-x-3">
           <img src={images['icon_search.png']} alt="search-icon" className="w-[25px] h-[25px]" />
           <input type="text" placeholder="Vị trí ứng tuyển" className="outline-none font-bold text-gray-600 text-base w-full" />

@@ -54,22 +54,22 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
+      const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, email, password }),
       });
-
       const result = await response.json();
+
       if (response.ok) {
-        alert('Đăng ký thành công! Vui lòng kiểm tra email của bạn để nhận mã OTP.');
-        navigate('/login');
+        alert(result.message);
+        navigate('/Login', { state: { email } });
       } else {
-        setErrorMessage(result.message || 'Đã xảy ra lỗi');
+        setErrorMessage(result.message || 'Đã có lỗi xảy ra.');
       }
     } catch (error) {
       console.error('Error:', error);
-      setErrorMessage('Đã xảy ra lỗi, vui lòng thử lại sau.');
+      setErrorMessage('Đã có lỗi xảy ra. Vui lòng thử lại.');
     }
   };
 

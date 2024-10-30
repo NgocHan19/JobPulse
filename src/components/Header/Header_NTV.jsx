@@ -39,7 +39,7 @@ function Header_NTV() {
     const [showCompanyManagement, setShowCompanyManagement] = useState(false);
 
     return (
-        <div className="relative">
+        <div className="relative w-full h-[98px]">
             <div className="absolute w-full h-[98px] bg-white shadow-md">
                 <div className="flex items-center h-full px-10">
                     <div className="flex items-center">
