@@ -7,21 +7,8 @@ function Login() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-<<<<<<< HEAD
-  // Hàm xử lý đăng nhập
   const handleLogin = async (e) => {
       e.preventDefault();
-=======
-  const handleLogin = async () => {
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
->>>>>>> fc213d24a3e239916b47a09dbd82049e8225f57e
 
       try {
           const response = await fetch('http://localhost:5000/login', {
@@ -33,11 +20,9 @@ function Login() {
           const data = await response.json();
 
           if (response.ok) {
-              // Đăng nhập thành công, chuyển hướng đến trang HomePage
               alert(data.message);
-              navigate('/homepage');
+              navigate('/home-logged-in');
           } else {
-              // Nếu không thành công, hiển thị lỗi
               alert(data.message);
           }
       } catch (error) {
