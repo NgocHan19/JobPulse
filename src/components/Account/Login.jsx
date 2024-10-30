@@ -5,35 +5,20 @@ import { useNavigate } from 'react-router-dom';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false); // Trạng thái loading
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true); // Bắt đầu quá trình loading
 
-    try {
-        const response = await fetch('http://localhost:5000/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-        console.log(data); // Thêm console log để xem phản hồi
-
-        if (response.ok) {
-            alert(data.message);
-            navigate('/home-logged-in');
-        } else {
-            alert(data.message);
-        }
-    } catch (error) {
-        console.error("Lỗi:", error);
-        alert("Có lỗi xảy ra khi đăng nhập.");
-    }
+    // Giả lập quá trình đăng nhập thành công
+    setTimeout(() => {
+        alert("Đăng nhập thành công!"); // Thông báo đăng nhập thành công
+        setLoading(false); // Kết thúc quá trình loading
+        navigate('/home-logged-in'); // Chuyển đến trang HomePage
+    }, 1000); // Thay đổi thời gian nếu cần
 };
-
-  
-
 
   return (
     <div className="relative w-full h-[1080px] bg-white">
@@ -69,18 +54,32 @@ function Login() {
         />
       </div>
 
-      <div className="absolute left-[154px] top-[485px] w-[827px] h-[60px] bg-[#1A73E8] rounded-[5px] flex items-center justify-center" onClick={handleLogin}>
-        <p className="text-white font-bold text-[24px] leading-[29px]">Đăng nhập</p>
+      <div
+        className="absolute left-[154px] top-[485px] w-[827px] h-[60px] bg-[#1A73E8] rounded-[5px] flex items-center justify-center"
+        onClick={loading ? null : handleLogin}
+        style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
+      >
+        <p className="text-white font-bold text-[24px] leading-[29px]">
+          {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+        </p>
       </div>
 
-      <button className="absolute left-[398px] top-[580px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]"
-        onClick={() => navigate('/register')} >Bạn chưa có tài khoản? Đăng ký ngay</button>
-      <p className="absolute left-[350px] top-[684px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Vui lòng gọi tới số 0123456789 (giờ hành chính).</p>
-      <p className="absolute left-[402px] top-[643px] text-[#5E5D5D] font-bold text-[20px] leading-[24px]">Bạn gặp khó khăn khi tạo tài khoản?</p>
-      
+      <button
+        className="absolute left-[398px] top-[580px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]"
+        onClick={() => navigate('/register')}
+      >
+        Bạn chưa có tài khoản? Đăng ký ngay
+      </button>
+      <p className="absolute left-[350px] top-[684px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">
+        Vui lòng gọi tới số 0123456789 (giờ hành chính).
+      </p>
+      <p className="absolute left-[402px] top-[643px] text-[#5E5D5D] font-bold text-[20px] leading-[24px]">
+        Bạn gặp khó khăn khi tạo tài khoản?
+      </p>
+
       <div className="absolute left-[226px] top-[625px] w-[700px] h-0 border border-[#D9D9D9]" />
     </div>
   );
-};
+}
 
 export default Login;

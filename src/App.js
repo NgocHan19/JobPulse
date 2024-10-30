@@ -25,8 +25,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/home" element={<><Header /><HomePage /><Footer /></>} />
-        <Route path="/home-logged-in" element={<><Header_NTV /><HomePage_Login /><Footer /></>} />
+        <Route path="/" element={<><Header /><HomePage /><Footer /></>} />
+        <Route path="/home-logged-in" element={<><Header_NTV /><HomePage /><Footer /></>} />
         <Route path="/search-home" element={<Search_Home_Logged />} />
         <Route path="/register" element={<Register />} />
         <Route path="/authen" element={<Form_Authen />} /> 

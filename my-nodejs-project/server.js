@@ -87,49 +87,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Endpoint đăng nhập
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-      // Kết nối đến cơ sở dữ liệu
-      let pool = await sql.connect(config); // Sửa thành config
-
-      // Kiểm tra xem tài khoản có tồn tại không
-      const result = await pool.request()
-          .input('email', sql.NVarChar, email) // Thay đổi kiểu dữ liệu ở đây
-          .query(`
-              SELECT AccountID, Password, IsVerified
-              FROM Account
-              WHERE Email = @email
-          `);
-
-      if (result.recordset.length === 0) {
-          return res.status(404).json({ message: "Tài khoản không tồn tại." });
-      }
-
-      const user = result.recordset[0];
-
-      // Kiểm tra tài khoản đã xác thực chưa
-      if (!user.IsVerified) {
-          return res.status(401).json({ message: "Tài khoản chưa được xác thực." });
-      }
-
-      // So sánh mật khẩu
-      const isPasswordValid = await bcrypt.compare(password, user.Password);
-      if (!isPasswordValid) {
-          return res.status(401).json({ message: "Mật khẩu không đúng." });
-      }
-
-      // Trả về thông tin thành công
-      res.json({ message: "Đăng nhập thành công." });
-
-  } catch (error) {
-      console.error("Lỗi đăng nhập:", error);
-      res.status(500).json({ message: "Đã xảy ra lỗi. Vui lòng thử lại sau." });
-  }
-});
-
 
 
 

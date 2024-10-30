@@ -2,6 +2,7 @@ import React, { useState , useEffect } from 'react';
 import images from '../../images';
 import './Carousel.css';
 
+
 const provincesAndCities = [
   "Tất cả tỉnh/thành phố", "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Nha Trang",
   "Biên Hòa", "Bắc Ninh", "Bắc Giang", "Thừa Thiên Huế", "Hưng Yên", "Nam Định",
@@ -47,6 +48,7 @@ const HomePage = () => {
     setSelectedCity(city);
     setCityDropdownOpen(false); 
   };
+  
 
   const filterOptions = ['Địa điểm', 'Mức lương', 'Kinh nghiệm', 'Ngành nghề'];
 
@@ -120,6 +122,7 @@ const HomePage = () => {
     currentIndex,
     currentIndex + imagesPerPage
   );
+  
 
 
   return (
