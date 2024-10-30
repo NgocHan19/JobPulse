@@ -7,9 +7,21 @@ function Login() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   // Hàm xử lý đăng nhập
   const handleLogin = async (e) => {
       e.preventDefault();
+=======
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+>>>>>>> fc213d24a3e239916b47a09dbd82049e8225f57e
 
       try {
           const response = await fetch('http://localhost:5000/login', {
@@ -37,33 +49,33 @@ function Login() {
 
   return (
     <div className="relative w-full h-[1080px] bg-white">
-      <h1 className="absolute left-[154px] top-[65px] text-[#1A73E8] font-bold text-[36px] leading-[44px]">
+      <h1 className="absolute left-[154px] top-[65px] text-[#1A73E8] font-bold text-4xl leading-[44px]">
         Chào mừng bạn đã quay trở lại
       </h1>
 
-      <p className="absolute left-[154px] top-[123px] text-[#A2A2A2] font-normal text-[28px] leading-[34px]">
-        Vui lòng đăng nhập để tiếp tục
+      <p className="absolute left-[154px] top-[123px] text-[#A2A2A2] font-normal text-xl leading-[34px]">
+        Cùng xây dựng một hồ sơ nổi bật và nhận được các cơ hội sự nghiệp lý tưởng
       </p>
 
-      <label className="absolute left-[154px] top-[200px] text-[#868585] font-normal text-[24px] leading-[29px]">Email</label>
+      <label className="absolute left-[154px] top-[200px] text-[#868585] font-normal text-2xl leading-[29px]">Email</label>
       <div className="absolute left-[154px] top-[240px] w-[827px] h-[60px] bg-white border border-[#A3A3A3] rounded-[5px] flex items-center">
         <img src={images['icon_email.png']} alt="Icon" className="w-[30px] h-[30px] ml-[15px]" />
         <input
           type="email"
           placeholder="Nhập email..."
-          className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]"
+          className="ml-[15px] placeholder-[#A2A2A2] text-lg leading-[24px] outline-none w-full pr-[45px]"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
 
-      <label className="absolute left-[154px] top-[340px] text-[#868585] font-normal text-[24px] leading-[29px]">Mật khẩu</label>
+      <label className="absolute left-[154px] top-[340px] text-[#868585] font-normal text-2xl leading-[29px]">Mật khẩu</label>
       <div className="absolute left-[154px] top-[380px] w-[827px] h-[60px] bg-white border border-[#A3A3A3] rounded-[5px] flex items-center">
         <img src={images['icon_pass.png']} alt="Icon" className="w-[30px] h-[30px] ml-[15px]" />
         <input
           type="password"
           placeholder="Nhập mật khẩu..."
-          className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]"
+          className="ml-[15px] placeholder-[#A2A2A2] text-lg leading-[24px] outline-none w-full pr-[45px]"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -73,11 +85,12 @@ function Login() {
         <p className="text-white font-bold text-[24px] leading-[29px]">Đăng nhập</p>
       </div>
 
-      <button className="absolute left-[398px] top-[580px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Bạn chưa có tài khoản? Đăng ký ngay</button>
+      <button className="absolute left-[398px] top-[580px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]"
+        onClick={() => navigate('/register')} >Bạn chưa có tài khoản? Đăng ký ngay</button>
       <p className="absolute left-[350px] top-[684px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Vui lòng gọi tới số 0123456789 (giờ hành chính).</p>
       <p className="absolute left-[402px] top-[643px] text-[#5E5D5D] font-bold text-[20px] leading-[24px]">Bạn gặp khó khăn khi tạo tài khoản?</p>
       
-      <div className="absolute left-[226px] top-[670px] w-[700px] h-0 border border-[#D9D9D9]" />
+      <div className="absolute left-[226px] top-[625px] w-[700px] h-0 border border-[#D9D9D9]" />
     </div>
   );
 };
