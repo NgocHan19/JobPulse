@@ -21,6 +21,7 @@ import Company_List from './components/Company/Company_List';
 import Top_Company from './components/Company/Top_Company';
 import Form_Applied_Empty from './components/Applied_Jobs/Form_Applied_Empty';
 import Applied_Jobs from './components/Applied_Jobs/Applied_Jobs';
+import OTPVerification from './components/Account/OTPVerification';
 
 
 
@@ -44,6 +45,7 @@ function App() {
         <Route path="/job-details" element={<><Header_NTV /><Search_Logged /><Job_Details /><Footer /></>} />
         <Route path="/company-list" element={<><Header_NTV /><Company_List /><Footer /></>} />
         <Route path="/company-top" element={<><Header_NTV /><Top_Company /><Footer /></>} />
+        <Route path="/OTPVerification" element={<><Header /><OTPVerification /><Footer /></>} />
       </Routes>
     </Router>
   );
