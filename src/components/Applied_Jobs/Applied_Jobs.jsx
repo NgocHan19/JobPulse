@@ -19,10 +19,10 @@ const Applied_Jobs = () => {
             <div className="absolute w-[600px] h-[510px] left-[60px] top-[50px]">
                 <div className="relative w-[900px] h-[1000px] bg-white rounded-[10px]">
                     <h2 className="absolute left-[40px] top-[20px] text-black font-bold text-2xl leading-[29px]">
-                         Việc làm đã lưu
+                         Việc làm đã ứng tuyển
                     </h2>
                     <div className="absolute left-[40px] top-[70px] text-black font-normal text-[16px] leading-[19px]">
-                        Danh sách việc làm đã lưu: 1
+                        Danh sách việc làm đã ứng tuyển: 1
                     </div>
 
                     <div className="absolute left-0 top-[110px] w-full border-t border-[#D9D9D9]"></div>
@@ -159,7 +159,7 @@ const Applied_Jobs = () => {
                             Khi có cơ hội việc làm phù hợp, NTD sẽ liên hệ và trao đổi với bạn qua email và số điện thoại của bạn.
                             </p>
                         </div>
-                        </div>
+                    </div>
 
 
 

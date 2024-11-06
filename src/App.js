@@ -21,8 +21,10 @@ import Company_List from './components/Company/Company_List';
 import Top_Company from './components/Company/Top_Company';
 import Form_Applied_Empty from './components/Applied_Jobs/Form_Applied_Empty';
 import Applied_Jobs from './components/Applied_Jobs/Applied_Jobs';
+import UploadCV from './components/CV/UploadCV';
+import CreateCV from './components/CV/CreateCV';
+import ManagementCV from './components/CV/ManagementCV';
 import OTPVerification from './components/Account/OTPVerification';
-
 
 
 function App() {
@@ -36,15 +38,18 @@ function App() {
         <Route path="/authen" element={<Form_Authen />} /> 
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
-        <Route path="/info" element={<Info />} />
-        <Route path="/change-pass" element={<Change_Pass />} />
-        <Route path="/saved-jobs" element={<><Header /><Search_Logged /><Saved_Jobs /><Footer /></>} />
+        <Route path="/info" element={<><Header_NTV /><Info /><Footer /></>} />
+        <Route path="/change-pass" element={<><Header_NTV /><Change_Pass /><Footer /></>} />
+        <Route path="/saved-jobs" element={<><Header_NTV /><Search_Logged /><Saved_Jobs /><Footer /></>} />
         <Route path="/saved-jobs-empty" element={<Form_Saved_Empty />} />
         <Route path="/applied-jobs" element={<><Header_NTV /><Search_Logged /><Applied_Jobs /><Footer /></>} />
         <Route path="/form-applied-empty" element={<Form_Applied_Empty />} />
         <Route path="/job-details" element={<><Header_NTV /><Search_Logged /><Job_Details /><Footer /></>} />
         <Route path="/company-list" element={<><Header_NTV /><Company_List /><Footer /></>} />
         <Route path="/company-top" element={<><Header_NTV /><Top_Company /><Footer /></>} />
+        <Route path="/upload-cv" element={<><Header_NTV /><UploadCV /><Footer /></>} />
+        <Route path="/create-cv" element={<><Header_NTV /><CreateCV /><Footer /></>} />
+        <Route path="/cv-management" element={<><Header_NTV /><ManagementCV /><Footer /></>} />
         <Route path="/OTPVerification" element={<><Header /><OTPVerification /><Footer /></>} />
       </Routes>
     </Router>

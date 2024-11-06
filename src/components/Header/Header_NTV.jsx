@@ -128,7 +128,6 @@ function Header_NTV() {
                         </div>
                     )}
 
-                    {/* Form showCompanyManagement */}
                     {showCompanyManagement && (
                         <div className="absolute w-[220px] h-[130px] left-[300px] top-[70px] bg-white rounded-md shadow-lg mt-2 z-[9999]">
                         <div className="absolute w-[220px] h-[130px] bg-white rounded-md">
@@ -149,7 +148,6 @@ function Header_NTV() {
                         </div>
                     )}
 
-                    {/* Notification và Account section */}
                     <div className="flex items-center ml-auto space-x-4">
                         <div className="relative flex items-center">
                             <div className="bg-white rounded-md" style={{ width: '148px', height: '41px', marginRight: '10px' }}>
@@ -171,12 +169,10 @@ function Header_NTV() {
                             </div>
                         </div>
 
-                        {/* Notification */}
                         <button className="bg-[#E0EDFF] rounded-full flex items-center p-2">
                             <img src={images['icon_nofication.png']} alt="Notification" className="w-[30px] h-[30px]" />
                         </button>
 
-                        {/* Account */}
                         <div className="relative"
                             onMouseEnter={handleMenuMouseEnter} // Giữ menu mở khi di chuột vào
                             onMouseLeave={handleMenuMouseLeave} // Đóng menu khi di chuột ra ngoài
@@ -189,36 +185,36 @@ function Header_NTV() {
                             {menuVisible && (
                                 <div ref={menuRef} className="absolute right-0 top-full mt-2 w-[280px] bg-white shadow-lg rounded-[10px] z-[9999] border border-[#FAF9F9] p-[10px]">
                                     <div className="flex flex-col gap-2">
-                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/Info')}>
-                                            <img src={images['icon_info.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/info')}>
+                                            <img src={images['icon_edit_profile.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Cài đặt thông tin cá nhân
                                         </button>
-                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/Change_Pass')}>
-                                            <img src={images['icon_password.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/change-pass')}>
+                                            <img src={images['icon_change_pass.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Đổi mật khẩu
                                         </button>
                                         <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
-                                            <img src={images['icon_recruiter.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                            <img src={images['icon_ntd_view.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Nhà tuyển dụng xem hồ sơ
                                         </button>
-                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
-                                            <img src={images['icon_suggestion.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/suggest-work')}>
+                                            <img src={images['icon_setting.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Cài đặt gợi ý việc làm
                                         </button>
                                         <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
-                                            <img src={images['icon_notification.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                            <img src={images['icon_nofication.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Cài đặt thông báo việc làm
                                         </button>
                                         <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
-                                            <img src={images['icon_email.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                            <img src={images['icon_setting_email.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Cài đặt nhận email
                                         </button>
                                         <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md">
-                                            <img src={images['icon_security.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                            <img src={images['icon_security.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Cài đặt bảo mật
                                         </button>
                                         <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/Logout')}>
-                                            <img src={images['icon_logout.png']} alt="Icon" className="w-5 h-5 mr-2" />
+                                            <img src={images['icon_logout.png']} alt="Icon" className="w-5 h-5 mr-3" />
                                             Đăng xuất
                                         </button>
                                     </div>
