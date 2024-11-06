@@ -25,7 +25,8 @@ import UploadCV from './components/CV/UploadCV';
 import CreateCV from './components/CV/CreateCV';
 import ManagementCV from './components/CV/ManagementCV';
 import OTPVerification from './components/Account/OTPVerification';
-
+import CreateCV from './components/CV/CreateCV';
+import UploadCV from './components/CV/UploadCV';
 
 function App() {
   return (
@@ -51,6 +52,8 @@ function App() {
         <Route path="/create-cv" element={<><Header_NTV /><CreateCV /><Footer /></>} />
         <Route path="/cv-management" element={<><Header_NTV /><ManagementCV /><Footer /></>} />
         <Route path="/OTPVerification" element={<><Header /><OTPVerification /><Footer /></>} />
+        <Route path="/create-cv" element={<><Header_NTV /><CreateCV /><Footer /></>} />
+        <Route path="/upload-cv" element={<><Header_NTV /><UploadCV /><Footer /></>} />
       </Routes>
     </Router>
   );

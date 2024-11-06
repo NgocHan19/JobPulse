@@ -4,6 +4,7 @@ import images from '../../images';
 
 const Logout = () => {
   const navigate = useNavigate();
+
   const handleLogout = () => {
     navigate('/');
   };
@@ -23,7 +24,6 @@ const Logout = () => {
         <p className="absolute w-[353px] h-[27px] left-[106px] top-[89px] text-[22px] font-bold text-[#A09696]">
           Bạn chắc chắn muốn đăng xuất ?
         </p>
-
         <div className="absolute w-[160px] h-[49px] left-[296px] top-[137px] bg-[#609BEA] rounded-[10px]">
           <button
             onClick={handleLogout}

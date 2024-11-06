@@ -4,6 +4,7 @@ const sql = require('mssql');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const multer = require('multer');
 
 const app = express();
 app.use(cors());
@@ -160,11 +161,93 @@ app.post('/OTPVerification', async (req, res) => {
 
 
 
+// Cấu hình Multer để lưu trữ file
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Thư mục để lưu trữ CV
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Đặt tên file độc nhất dựa vào thời gian
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// Middleware xác thực JWT
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) return res.status(401).json({ message: 'Không có token, vui lòng đăng nhập.' });
+
+  jwt.verify(token, 'your_jwt_secret', (err, user) => {
+    if (err) return res.status(403).json({ message: 'Token không hợp lệ.' });
+    req.user = user;
+    next();
+  });
+};
+
+// API tải lên CV
+app.post('/uploadCV', authenticateToken, upload.single('cvFile'), async (req, res) => {
+  try {
+    const { email, fullName, jobPosition } = req.user;
+    const cvFilePath = req.file ? req.file.path : null;
+
+    if (!cvFilePath) {
+      return res.status(400).json({ message: 'Vui lòng chọn tệp CV để tải lên.' });
+    }
+
+    const pool = await sql.connect(dbConfig);
+    const result = await pool.request()
+      .input('FilePathAttribute', sql.NVarChar(sql.MAX), cvFilePath)
+      .input('TieuDe', sql.NVarChar(255), jobPosition) // Ví dụ sử dụng tên vị trí làm tiêu đề
+      .input('CTCV_ID', sql.Int, 1) // Cập nhật giá trị thực tế của CTCV_ID theo yêu cầu
+      .input('UserID', sql.Int, req.user.userID) // Lấy từ token đã lưu
+      .query(`
+        INSERT INTO CV (FilePathAttribute, TieuDe, CTCV_ID, UserID, CreatedAt, UpdatedAt)
+        VALUES (@FilePathAttribute, @TieuDe, @CTCV_ID, @UserID, GETDATE(), GETDATE())
+      `);
+
+    res.status(200).json({ message: 'CV đã được tải lên thành công.' });
+  } catch (error) {
+    console.error('Lỗi khi tải lên CV:', error);
+    res.status(500).json({ message: 'Lỗi khi tải lên CV.' });
+  }
+});
 
 
 
 
+app.post("/change-password", async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
 
+  try {
+    // Truy xuất chi tiết người dùng từ cơ sở dữ liệu
+    const result = await sql.query`SELECT Password FROM Account WHERE Email = ${email}`;
+    const user = result.recordset[0];
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // So sánh mật khẩu hiện tại với mật khẩu trong cơ sở dữ liệu
+    const isPasswordMatch = await bcrypt.compare(currentPassword, user.Password);
+    if (!isPasswordMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    // Băm mật khẩu mới
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Cập nhật mật khẩu trong cơ sở dữ liệu
+    await sql.query`UPDATE Account SET Password = ${hashedPassword} WHERE Email = ${email}`;
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 
