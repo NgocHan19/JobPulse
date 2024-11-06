@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load các biến môi trường từ file .env
+require('dotenv').config();
 const express = require('express');
 const sql = require('mssql');
 const nodemailer = require('nodemailer');
@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Cấu hình SQL Server
+// SQL Server configuration
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -21,12 +21,12 @@ const config = {
   },
 };
 
-// Kết nối đến SQL Server
+// Connect to SQL Server
 sql.connect(config)
-  .then(() => console.log('Đã kết nối với cơ sở dữ liệu'))
-  .catch(err => console.error('Lỗi kết nối cơ sở dữ liệu:', err));
+  .then(() => console.log('Connected to the database'))
+  .catch(err => console.error('Database connection error:', err));
 
-// Cấu hình Nodemailer để gửi email
+// Nodemailer configuration for email sending
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -35,14 +35,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Hàm tạo mã xác thực ngẫu nhiên
+// Generate random verification code
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-
-// Gửi email xác thực
- async function sendVerificationEmail(email, verificationToken) {
+// Send verification email
+async function sendVerificationEmail(email, verificationToken) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
@@ -52,40 +51,118 @@ function generateVerificationCode() {
 
   try {
     await transporter.sendMail(mailOptions);
-    return true; // Trả về true nếu gửi thành công
+    return true;
   } catch (error) {
-    console.error('Lỗi gửi email:', error);
-    return false; // Trả về false nếu gửi không thành công
+    console.error('Error sending email:', error);
+    return false;
   }
 }
-// Endpoint đăng ký
+
+// Registration endpoint
 app.post('/register', async (req, res) => {
-  const { email, password, fullName } = req.body;
-
+  const { email, password } = req.body;
   try {
-    const pool = await sql.connect(config);
-    const existingUser = await pool.request()
-      .input('Email', sql.NVarChar, email)
-      .query(`SELECT * FROM Account WHERE Email = @Email`);
-
-    if (existingUser.recordset.length > 0) {
-      return res.status(400).json({ message: 'Email đã được sử dụng.' });
-    }
-
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = generateVerificationCode();
+    const tokenExpiration = new Date(Date.now() + 5 * 60 * 1000); // Expires in 5 minutes
 
-    await pool.request()
+    // Insert the account data into SQL Server
+    const request = new sql.Request();
+    const accountResult = await request
       .input('Email', sql.NVarChar, email)
-      .input('Password', sql.VarBinary, Buffer.from(hashedPassword, 'utf-8'))
-      .input('IsVerified', sql.Bit, 1) // Đặt trạng thái IsVerified thành 1
-      .query(`INSERT INTO Account (Email, Password, IsVerified) VALUES (@Email, @Password, @IsVerified)`);
+      .input('Password', sql.VarBinary, Buffer.from(hashedPassword))
+      .input('VerificationToken', sql.NVarChar, verificationToken)
+      .input('TokenExpiration', sql.DateTime, tokenExpiration)
+      .query(`INSERT INTO Account (Email, Password, VerificationToken, TokenExpiration, CreatedAt)
+              VALUES (@Email, @Password, @VerificationToken, @TokenExpiration, GETDATE());
+              SELECT SCOPE_IDENTITY() AS AccountID;`);
+    const accountId = accountResult.recordset[0].AccountID;
 
-    res.status(200).json({ message: 'Đăng ký thành công! Bạn có thể đăng nhập ngay.' });
-  } catch (err) {
-    console.error('Error in register:', err);
-    res.status(500).json({ message: 'Lỗi máy chủ, vui lòng thử lại sau.' });
+    // Assign default role 'Người Tìm Việc' to Account
+    await request
+      .input('AccountID', sql.Int, accountId)
+      .input('RoleID', sql.Int, 1) // Assuming 1 is the RoleID for 'Người Tìm Việc'
+      .query(`INSERT INTO AccountRole (AccountID, RoleID, CreatedAt) VALUES (@AccountID, @RoleID, GETDATE())`);
+
+    // Send the OTP email
+    const emailSent = await sendVerificationEmail(email, verificationToken);
+    if (emailSent) {
+      res.status(201).json({ message: 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.' });
+    } else {
+      res.status(500).json({ message: 'Lỗi khi gửi email xác thực.' });
+    }
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Lỗi khi đăng ký tài khoản.' });
   }
 });
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+      const request = new sql.Request();
+      const result = await request
+          .input('Email', sql.NVarChar, email)
+          .query('SELECT Password FROM Account WHERE Email = @Email');
+
+      if (result.recordset.length === 0) {
+          return res.status(400).json({ message: 'Email không tồn tại.' });
+      }
+
+      const hashedPassword = result.recordset[0].Password.toString();
+      const match = await bcrypt.compare(password, hashedPassword);
+
+      if (!match) {
+          return res.status(401).json({ message: 'Mật khẩu không chính xác.' });
+      }
+
+      res.status(200).json({ message: 'Đăng nhập thành công!' });
+  } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Lỗi khi đăng nhập.' });
+  }
+});
+
+// OTP Verification endpoint
+app.post('/OTPVerification', async (req, res) => {
+  const { email, verificationToken } = req.body;
+  try {
+    const request = new sql.Request();
+    const result = await request
+      .input('Email', sql.NVarChar, email)
+      .query(`SELECT VerificationToken, TokenExpiration FROM Account WHERE Email = @Email`);
+
+    if (result.recordset.length === 0) {
+      return res.status(400).json({ message: 'Email không tồn tại.' });
+    }
+
+    const { VerificationToken, TokenExpiration } = result.recordset[0];
+    if (VerificationToken !== verificationToken) {
+      return res.status(400).json({ message: 'Mã xác thực không chính xác.' });
+    }
+
+    if (new Date() > TokenExpiration) {
+      return res.status(400).json({ message: 'Mã xác thực đã hết hạn.' });
+    }
+
+    // Update the account's verification status
+    await request.query(`UPDATE Account SET IsVerified = 1, VerificationToken = NULL, TokenExpiration = NULL WHERE Email = '${email}'`);
+    res.json({ message: 'Xác thực tài khoản thành công.' });
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).json({ message: 'Lỗi khi xác thực tài khoản.' });
+  }
+});
+
+// Additional endpoints for UserProfile, AccountRole, etc., would follow similar adjustments
+
+
+
+
+
+
 
 
 
@@ -93,5 +170,5 @@ app.post('/register', async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server đang chạy trên port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
