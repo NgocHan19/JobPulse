@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const OTPVerification = () => {
-  const [otp, setOTP] = useState('');
+  const [otp, setOTP] = useState(Array(6).fill(''));
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
@@ -41,30 +41,50 @@ const OTPVerification = () => {
     }
   };
 
+  // Hàm xử lý thay đổi giá trị của các ô input
+  const handleInputChange = (e, index) => {
+    const newOtp = [...otp];
+    newOtp[index] = e.target.value;  // Cập nhật giá trị cho ô tương ứng
+    setOTP(newOtp);  // Sửa từ setOtp thành setOTP
+
+    // Chuyển focus đến ô input tiếp theo nếu đã nhập đầy đủ ký tự
+    if (e.target.value.length === 1 && index < 5) {
+      const nextSibling = e.target.nextElementSibling;
+      if (nextSibling) {
+        nextSibling.focus();
+      }
+    }
+  };
+
   return (
-    <div className="relative w-full h-[500px] bg-white flex flex-col items-center justify-center">
-      <h2 className="text-[#1A73E8] font-bold text-4xl mb-4">Xác Thực OTP</h2>
-      <p className="text-[#A2A2A2] font-normal text-xl mb-8">Nhập mã OTP đã được gửi đến email của bạn</p>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="relative w-[800px] h-[370px] bg-[#F2F8FF] rounded-lg shadow-lg">
+        <div className="absolute w-[745px] h-[325px] left-7 top-5 bg-white border border-gray-300 rounded-2xl p-8">
+          <h2 className="text-center text-[#525050] font-bold text-2xl mb-2">Xác nhận email</h2>
+          <p className="text-center text-[#A09696] font-semibold text-sm mb-8">Mã đã được gửi đến email</p>
 
-      <div className="w-[400px] h-[60px] bg-white border border-[#A3A3A3] rounded-[5px] flex items-center">
-        <input
-          type="text"
-          placeholder="Nhập mã OTP..."
-          className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[15px]"
-          value={otp}
-          onChange={(e) => setOTP(e.target.value)}
-        />
+          <div className="flex justify-center gap-4 mb-10">
+            {[...Array(6)].map((_, index) => (
+              <input
+                key={index}
+                type="text"
+                maxLength="1"
+                value={otp[index]}  // Gắn giá trị từ state vào các ô input
+                onChange={(e) => handleInputChange(e, index)}  // Gọi hàm xử lý khi có thay đổi
+                className="w-[50px] h-[50px] bg-white border border-[#BBB6B6] rounded-lg text-center text-lg font-semibold"
+              />
+            ))}
+          </div>
+
+          <button
+            className="mt-6 w-[400px] h-[60px] bg-[#1A73E8] text-white text-[24px] font-bold leading-[29px] rounded-[5px]"
+            onClick={handleVerifyOTP}>
+            Xác nhận
+          </button>
+            {errorMessage && <div className="mt-4 text-red-800">{errorMessage}</div>}
+            {successMessage && <div className="mt-4 text-green-800">{successMessage}</div>}
+        </div>
       </div>
-
-      <button
-        className="mt-6 w-[400px] h-[60px] bg-[#1A73E8] text-white text-[24px] font-bold leading-[29px] rounded-[5px]"
-        onClick={handleVerifyOTP}
-      >
-        Xác Thực
-      </button>
-
-      {errorMessage && <div className="mt-4 text-red-800">{errorMessage}</div>}
-      {successMessage && <div className="mt-4 text-green-800">{successMessage}</div>}
     </div>
   );
 };
