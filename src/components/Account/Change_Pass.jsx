@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import images from '../../images'; 
+import React, { useState, useEffect } from "react";
+import images from '../../images';
 
 const Change_Pass = () => {
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState(''); 
-  const [confirmPassword, setConfirmPassword] = useState(''); 
-
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
   // Lấy email từ localStorage khi trang được tải
   useEffect(() => {
     const savedEmail = localStorage.getItem("userEmail");
@@ -14,26 +14,13 @@ const Change_Pass = () => {
       setEmail(savedEmail);
     }
   }, []);
-
+  
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       alert("Mật khẩu mới và nhập lại mật khẩu không khớp!");
       return;
     }
-
-    alert("Đổi mật khẩu thành công!");
-    setEmail('');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-  };
-  
-  const [isSearchingEnabled, setIsSearchingEnabled] = useState(false);
-
-  const toggleSearching = (status) => {
-    setIsSearchingEnabled(status);
-  };
-
+    
     try {
       const response = await fetch("http://localhost:5000/api/change-password", {
         method: "POST",
@@ -61,6 +48,12 @@ const Change_Pass = () => {
       alert("Đã xảy ra lỗi trong quá trình đổi mật khẩu.");
     }
   };
+
+  const [isSearchingEnabled, setIsSearchingEnabled] = useState(false);
+  const toggleSearching = (status) => {
+    setIsSearchingEnabled(status);
+  };
+
   return (
     <div className="relative w-full h-[600px]">
       <div className="absolute w-full h-[680px] bg-[#F1F3F4]">
@@ -122,62 +115,60 @@ const Change_Pass = () => {
           </div>
 
             <div className="absolute w-[160px] h-[45px] left-[380px] top-[460px] bg-[#609BEA] rounded-[5px] flex items-center justify-center">
-              <button className="text-2xl font-bold text-white">Lưu</button>
+              <button onClick={handleChangePassword} className="text-2xl font-bold text-white">Lưu</button>
             </div>
 
           </div>
       </div>
 
       {/* Phần thông tin bên phải */}
-      
-                    {/* Quản lý hồ sơ */}
-                    <div className="absolute w-[420px] h-[450px] left-[1000px] top-[50px] bg-white rounded-lg">
-                        <div className="absolute w-[80px] h-[80px] left-[30px] top-[20px]">
-                            <img src={images['icon_info.png']} alt="Profile" className="w-full h-full object-cover" />
-                        </div>
-                        <h2 className="absolute w-[155px] h-[48px] left-[150px] top-[20px] text-[20px] text-black">
-                            Chào bạn trở lại, (tên account)
-                        </h2>
-                        <div className="absolute w-[200px] h-[40px] left-[150px] top-[100px] bg-[#D9D9D9] rounded-[15px] flex items-center justify-center">
-                            <p className="text-base text-black">Tài khoản đã xác thực</p>
-                        </div>
+      <div className="absolute w-[420px] h-[450px] left-[1000px] top-[50px] bg-white rounded-lg">
+        <div className="absolute w-[80px] h-[80px] left-[30px] top-[20px]">
+          <img src={images['icon_info.png']} alt="Profile" className="w-full h-full object-cover" />
+        </div>
+        <h2 className="absolute w-[155px] h-[48px] left-[150px] top-[20px] text-[20px] text-black">
+          Chào bạn trở lại, (tên account)
+        </h2>
+        <div className="absolute w-[200px] h-[40px] left-[150px] top-[100px] bg-[#D9D9D9] rounded-[15px] flex items-center justify-center">
+          <p className="text-base text-black">Tài khoản đã xác thực</p>
+        </div>
 
-                        <div className="absolute w-[354px] h-[120px] left-[33px] top-[160px] bg-white border border-[#F2F0F0] rounded-lg">
-                            <div className="flex items-center mt-[10px] ml-[18px]">
-                            <button onClick={() => toggleSearching(true)} className="flex items-center">
-                                <img
-                                src={isSearchingEnabled ? images['icon_turn_on.png'] : images['icon_turn_off.png']}
-                                alt="Icon"
-                                className="w-[30px] h-[30px] mr-3"
-                                />
-                                <p className={`text-[18px] font-bold ${isSearchingEnabled ? 'text-[#1A73E8]' : 'text-[#A2A2A2]'}`}>
-                                {isSearchingEnabled ? 'Đã bật tìm việc' : 'Đang tắt tìm việc'}
-                                </p>
-                            </button>
-                            </div>
-                            <p className="ml-[18px] mt-[10px] text-[12px] font-normal text-black leading-[15px] font-inter">
-                            Bật tìm việc giúp hồ sơ của bạn nổi bật hơn và được chú ý nhiều hơn trong danh sách tìm kiếm của NTD.
-                            </p>
-                        </div>
+        <div className="absolute w-[354px] h-[120px] left-[33px] top-[160px] bg-white border border-[#F2F0F0] rounded-lg">
+          <div className="flex items-center mt-[10px] ml-[18px]">
+            <button onClick={() => toggleSearching(true)} className="flex items-center">
+              <img
+                src={isSearchingEnabled ? images['icon_turn_on.png'] : images['icon_turn_off.png']}
+                alt="Icon"
+                className="w-[30px] h-[30px] mr-3"
+              />
+              <p className={`text-[18px] font-bold ${isSearchingEnabled ? 'text-[#1A73E8]' : 'text-[#A2A2A2]'}`}>
+                {isSearchingEnabled ? 'Đã bật tìm việc' : 'Đang tắt tìm việc'}
+              </p>
+            </button>
+          </div>
+          <p className="ml-[18px] mt-[10px] text-[12px] font-normal text-black leading-[15px] font-inter">
+            Bật tìm việc giúp hồ sơ của bạn nổi bật hơn và được chú ý nhiều hơn trong danh sách tìm kiếm của NTD.
+          </p>
+        </div>
 
-                        <div className="absolute w-[354px] h-[120px] left-[33px] top-[300px] bg-white border border-[#F2F0F0] rounded-lg">
-                            <div className="flex items-center mt-[10px] ml-[18px]">
-                            <button onClick={() => toggleSearching(false)} className="flex items-center">
-                                <img
-                                src={isSearchingEnabled ? images['icon_turn_on.png'] : images['icon_turn_off.png']}
-                                alt="Icon"
-                                className="w-[30px] h-[30px] mr-3"
-                                />
-                                <p className={`text-[18px] font-bold ${!isSearchingEnabled ? 'text-[#A2A2A2]' : 'text-[#1A73E8]'}`}>
-                                Cho phép NTD tìm kiếm hồ sơ
-                                </p>
-                            </button>
-                            </div>
-                            <p className="ml-[18px] mt-[10px] text-[12px] font-normal text-black leading-[15px] font-inter">
-                            Khi có cơ hội việc làm phù hợp, NTD sẽ liên hệ và trao đổi với bạn qua email và số điện thoại của bạn.
-                            </p>
-                        </div>
-                    </div> 
+        <div className="absolute w-[354px] h-[120px] left-[33px] top-[300px] bg-white border border-[#F2F0F0] rounded-lg">
+          <div className="flex items-center mt-[10px] ml-[18px]">
+            <button onClick={() => toggleSearching(false)} className="flex items-center">
+              <img
+                src={isSearchingEnabled ? images['icon_turn_on.png'] : images['icon_turn_off.png']}
+                alt="Icon"
+                className="w-[30px] h-[30px] mr-3"
+              />
+              <p className={`text-[18px] font-bold ${!isSearchingEnabled ? 'text-[#A2A2A2]' : 'text-[#1A73E8]'}`}>
+                Cho phép NTD tìm kiếm hồ sơ
+              </p>
+            </button>
+          </div>
+          <p className="ml-[18px] mt-[10px] text-[12px] font-normal text-black leading-[15px] font-inter">
+            Tự động hiển thị thông tin khi có nhà tuyển dụng tìm kiếm hồ sơ của bạn.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

@@ -99,30 +99,38 @@ app.post('/register', async (req, res) => {
   }
 });
 
+const jwt = require('jsonwebtoken');
+
+// Thêm logic tạo JWT token trong quá trình đăng nhập
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-      const request = new sql.Request();
-      const result = await request
-          .input('Email', sql.NVarChar, email)
-          .query('SELECT Password FROM Account WHERE Email = @Email');
+    const request = new sql.Request();
+    const result = await request
+      .input('Email', sql.NVarChar, email)
+      .query('SELECT Password, AccountID FROM Account WHERE Email = @Email');
 
-      if (result.recordset.length === 0) {
-          return res.status(400).json({ message: 'Email không tồn tại.' });
-      }
+    if (result.recordset.length === 0) {
+      return res.status(400).json({ message: 'Email không tồn tại.' });
+    }
 
-      const hashedPassword = result.recordset[0].Password.toString();
-      const match = await bcrypt.compare(password, hashedPassword);
+    const hashedPassword = result.recordset[0].Password.toString();
+    const match = await bcrypt.compare(password, hashedPassword);
 
-      if (!match) {
-          return res.status(401).json({ message: 'Mật khẩu không chính xác.' });
-      }
+    if (!match) {
+      return res.status(401).json({ message: 'Mật khẩu không chính xác.' });
+    }
 
-      res.status(200).json({ message: 'Đăng nhập thành công!' });
+    // Tạo JWT token sau khi đăng nhập thành công
+    const user = result.recordset[0];
+    const token = jwt.sign({ userID: user.AccountID, email: email }, 'your_jwt_secret', { expiresIn: '1h' });
+
+    // Trả về token cho người dùng
+    res.status(200).json({ message: 'Đăng nhập thành công!', token });
   } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Lỗi khi đăng nhập.' });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Lỗi khi đăng nhập.' });
   }
 });
 
@@ -182,7 +190,7 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, 'your_jwt_secret', (err, user) => {
     if (err) return res.status(403).json({ message: 'Token không hợp lệ.' });
-    req.user = user;
+    req.user = user;  // Lưu thông tin người dùng vào đối tượng req
     next();
   });
 };
@@ -190,14 +198,14 @@ const authenticateToken = (req, res, next) => {
 // API tải lên CV
 app.post('/uploadCV', authenticateToken, upload.single('cvFile'), async (req, res) => {
   try {
-    const { email, fullName, jobPosition } = req.user;
+    const { email, fullName, jobPosition } = req.user; // Lấy thông tin người dùng từ token
     const cvFilePath = req.file ? req.file.path : null;
 
     if (!cvFilePath) {
       return res.status(400).json({ message: 'Vui lòng chọn tệp CV để tải lên.' });
     }
 
-    const pool = await sql.connect(dbConfig);
+    const pool = await sql.connect(config); // Đảm bảo bạn sử dụng đúng cấu hình kết nối SQL
     const result = await pool.request()
       .input('FilePathAttribute', sql.NVarChar(sql.MAX), cvFilePath)
       .input('TieuDe', sql.NVarChar(255), jobPosition) // Ví dụ sử dụng tên vị trí làm tiêu đề
@@ -214,7 +222,6 @@ app.post('/uploadCV', authenticateToken, upload.single('cvFile'), async (req, re
     res.status(500).json({ message: 'Lỗi khi tải lên CV.' });
   }
 });
-
 
 
 
