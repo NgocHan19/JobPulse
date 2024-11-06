@@ -28,6 +28,7 @@ const Register = () => {
   const handleRegister = async () => {
     setErrorMessage('');
 
+    // Kiểm tra thông tin nhập vào
     if (!fullName) {
       setErrorMessage('Bạn phải nhập họ tên!');
       return;
@@ -54,16 +55,17 @@ const Register = () => {
     }
 
     try {
+      // Gửi yêu cầu đăng ký
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, password }),
+        body: JSON.stringify({ fullName, email, password, role: 'Người Tìm Việc' }), // Gửi role mặc định là Job Seeker
       });
       const result = await response.json();
 
       if (response.ok) {
         alert(result.message);
-        navigate('/Login', { state: { email } });
+        navigate('/OTPVerification', { state: { email } }); // Điều hướng đến trang OTP
       } else {
         setErrorMessage(result.message || 'Đã có lỗi xảy ra.');
       }
@@ -160,14 +162,9 @@ const Register = () => {
       </button>
       {errorMessage && <div className="absolute left-[154px] top-[900px] text-red-800">{errorMessage}</div>}
 
-
       <button className="absolute left-[398px] top-[900px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]" 
         onClick={() => navigate('/login')} >Bạn đã có tài khoản? Đăng nhập ngay</button>
       <p className="absolute left-[350px] top-[1000px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]">Vui lòng gọi tới số 0123456789 (giờ hành chính).</p>
-      <p className="absolute left-[402px] top-[960px] text-[#5E5D5D] font-bold text-[20px] leading-[24px]">Bạn gặp khó khăn khi tạo tài khoản?</p>
-      
-      <div className="absolute left-[226px] top-[940px] w-[700px] h-0 border border-[#D9D9D9]" />
-
     </div>
   );
 };

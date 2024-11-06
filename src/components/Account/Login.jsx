@@ -5,20 +5,39 @@ import { useNavigate } from 'react-router-dom';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); // Trạng thái loading
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Bắt đầu quá trình loading
+    setLoading(true);
+    setErrorMessage('');
 
-    // Giả lập quá trình đăng nhập thành công
-    setTimeout(() => {
-        alert("Đăng nhập thành công!"); // Thông báo đăng nhập thành công
-        setLoading(false); // Kết thúc quá trình loading
-        navigate('/home-logged-in'); // Chuyển đến trang HomePage
-    }, 1000); // Thay đổi thời gian nếu cần
-};
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Nếu đăng nhập thành công, chuyển đến trang xác thực OTP
+        navigate('/home-logged-in', { state: { email } });
+      } else {
+        setErrorMessage(data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      setErrorMessage('Lỗi khi đăng nhập. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative w-full h-[1080px] bg-white">
@@ -53,6 +72,13 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
+
+      {/* Hiển thị thông báo lỗi nếu có */}
+      {errorMessage && (
+        <p className="absolute left-[154px] top-[450px] text-red-500 font-normal text-lg">
+          {errorMessage}
+        </p>
+      )}
 
       <div
         className="absolute left-[154px] top-[485px] w-[827px] h-[60px] bg-[#1A73E8] rounded-[5px] flex items-center justify-center"

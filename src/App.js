@@ -24,6 +24,7 @@ import Applied_Jobs from './components/Applied_Jobs/Applied_Jobs';
 import UploadCV from './components/CV/UploadCV';
 import CreateCV from './components/CV/CreateCV';
 import ManagementCV from './components/CV/ManagementCV';
+import OTPVerification from './components/Account/OTPVerification';
 
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
         <Route path="/upload-cv" element={<><Header_NTV /><UploadCV /><Footer /></>} />
         <Route path="/create-cv" element={<><Header_NTV /><CreateCV /><Footer /></>} />
         <Route path="/cv-management" element={<><Header_NTV /><ManagementCV /><Footer /></>} />
+        <Route path="/OTPVerification" element={<><Header /><OTPVerification /><Footer /></>} />
       </Routes>
     </Router>
   );
