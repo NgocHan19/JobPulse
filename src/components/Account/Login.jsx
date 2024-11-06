@@ -13,7 +13,7 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
-
+  
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -22,11 +22,12 @@ function Login() {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
-        // Nếu đăng nhập thành công, chuyển đến trang xác thực OTP
+        // If login is successful, save account data to localStorage
+        localStorage.setItem('accountData', JSON.stringify({ email }));
         navigate('/home-logged-in', { state: { email } });
       } else {
         setErrorMessage(data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');

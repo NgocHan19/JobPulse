@@ -1,9 +1,25 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import images from '../../images';
 
 const Logout = () => {
+  const navigate = useNavigate();
+
+  // Hàm xử lý khi ấn nút "Đăng xuất"
+  const handleLogout = () => {
+    // Xóa thông tin xác thực người dùng (nếu có)
+    // localStorage.removeItem('userToken'); // Nếu sử dụng localStorage cho xác thực
+    // Điều hướng về trang chủ
+    navigate('/');
+  };
+
+  // Hàm xử lý khi ấn nút "Quay lại"
+  const handleGoBack = () => {
+    navigate(-1); // Quay lại trang trước đó
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen"> {/* Flexbox để căn giữa */}
+    <div className="flex items-center justify-center min-h-screen">
       <div className="relative w-[565px] h-[235px] drop-shadow-md">
         <div className="absolute w-full h-full bg-[#F2F8FF] rounded-lg"></div>
         <div className="absolute w-[507px] h-[188px] left-[28px] top-[22px] bg-white border border-[#D8D8D8] rounded-[25px] box-border"></div>
@@ -13,13 +29,23 @@ const Logout = () => {
         <p className="absolute w-[353px] h-[27px] left-[106px] top-[89px] text-[22px] font-bold text-[#A09696]">
           Bạn chắc chắn muốn đăng xuất ?
         </p>
+        
+        {/* Nút Đăng xuất */}
         <div className="absolute w-[160px] h-[49px] left-[296px] top-[137px] bg-[#609BEA] rounded-[10px]">
-          <button className="absolute w-[110px] h-[27px] left-[25px] top-[7px] text-[22px] font-bold text-white">
+          <button
+            onClick={handleLogout}
+            className="absolute w-[110px] h-[27px] left-[25px] top-[7px] text-[22px] font-bold text-white"
+          >
             Đăng xuất
           </button>
         </div>
+
+        {/* Nút Quay lại */}
         <div className="absolute w-[163px] h-[49px] left-[107px] top-[137px] bg-[#609BEA] rounded-[10px]">
-          <button className="absolute w-[86px] h-[27px] left-[35px] top-[7px] text-[22px] font-bold text-white">
+          <button
+            onClick={handleGoBack}
+            className="absolute w-[86px] h-[27px] left-[35px] top-[7px] text-[22px] font-bold text-white"
+          >
             Quay lại
           </button>
         </div>

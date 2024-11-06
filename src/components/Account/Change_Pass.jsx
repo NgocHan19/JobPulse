@@ -7,18 +7,47 @@ const Change_Pass = () => {
   const [newPassword, setNewPassword] = useState(''); 
   const [confirmPassword, setConfirmPassword] = useState(''); 
 
-  const handleChangePassword = () => {
+  // Lấy email từ localStorage khi trang được tải
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("userEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+    }
+  }, []);
+
+  const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       alert("Mật khẩu mới và nhập lại mật khẩu không khớp!");
       return;
     }
-    alert("Đổi mật khẩu thành công!");
-    setEmail('');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-  };
 
+    try {
+      const response = await fetch("http://localhost:5000/api/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,             // Email lấy từ localStorage
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        // Clear form fields
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert("Đã xảy ra lỗi trong quá trình đổi mật khẩu.");
+    }
+  };
   return (
     <div className="absolute w-full h-full">
       <div className="absolute w-full h-full bg-[#F1F3F4]">

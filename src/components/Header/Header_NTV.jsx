@@ -193,7 +193,7 @@ function Header_NTV() {
                                             <img src={images['icon_info.png']} alt="Icon" className="w-5 h-5 mr-2" />
                                             Cài đặt thông tin cá nhân
                                         </button>
-                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/Change_Pass')}>
+                                        <button className="flex items-center py-3 px-4 text-left hover:text-[#1A73E8] bg-[#FAF9F9] rounded-md" onClick={() => handleNavigate('/change-pass')}>
                                             <img src={images['icon_password.png']} alt="Icon" className="w-5 h-5 mr-2" />
                                             Đổi mật khẩu
                                         </button>
