@@ -5,17 +5,12 @@ import images from '../../images';
 const Logout = () => {
   const navigate = useNavigate();
 
-  // Hàm xử lý khi ấn nút "Đăng xuất"
   const handleLogout = () => {
-    // Xóa thông tin xác thực người dùng (nếu có)
-    // localStorage.removeItem('userToken'); // Nếu sử dụng localStorage cho xác thực
-    // Điều hướng về trang chủ
     navigate('/');
   };
 
-  // Hàm xử lý khi ấn nút "Quay lại"
   const handleGoBack = () => {
-    navigate(-1); // Quay lại trang trước đó
+    navigate(-1);
   };
 
   return (
@@ -29,8 +24,6 @@ const Logout = () => {
         <p className="absolute w-[353px] h-[27px] left-[106px] top-[89px] text-[22px] font-bold text-[#A09696]">
           Bạn chắc chắn muốn đăng xuất ?
         </p>
-        
-        {/* Nút Đăng xuất */}
         <div className="absolute w-[160px] h-[49px] left-[296px] top-[137px] bg-[#609BEA] rounded-[10px]">
           <button
             onClick={handleLogout}
@@ -40,7 +33,6 @@ const Logout = () => {
           </button>
         </div>
 
-        {/* Nút Quay lại */}
         <div className="absolute w-[163px] h-[49px] left-[107px] top-[137px] bg-[#609BEA] rounded-[10px]">
           <button
             onClick={handleGoBack}
