@@ -1,28 +1,57 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import images from '../../images';
+import axios from 'axios';
 
 const ManagementCV = () => {
     const [menuVisible, setMenuVisible] = useState(false);
     const navigate = useNavigate(); 
-    
-    // Hàm chuyển trang
-    const handleNavigate = (path) => {
-        navigate(path);
-        setMenuVisible(false);
-    };
-
     const [isSearchingEnabled, setIsSearchingEnabled] = useState(false);
 
-    const toggleSearching = (status) => {
-      setIsSearchingEnabled(status);
+    // State to store the list of CVs
+    const [cvs, setCvs] = useState([]);
+
+    // State to track starred CVs individually
+    const [starredCVs, setStarredCVs] = useState({});
+
+    // Fetch CVs when the component is mounted
+    useEffect(() => {
+        const fetchCVs = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/getCVs'); 
+                setCvs(response.data);  // Store the CV data in state
+            } catch (error) {
+                console.error('Error fetching CVs:', error);
+            }
+        };
+        fetchCVs();
+    }, []);
+
+    // Handle toggling of star for a specific CV
+    const handleStarClick = (cvId) => {
+        setStarredCVs((prevStarred) => ({
+            ...prevStarred,
+            [cvId]: !prevStarred[cvId]  // Toggle the starred status for this CV
+        }));
     };
 
-  const [isStarred, setIsStarred] = useState(false);
-
-  const handleClick = () => {
-    setIsStarred(!isStarred); // Đảo trạng thái khi nhấn
-  };
+    // Handle search toggle
+    const toggleSearching = (status) => {
+        setIsSearchingEnabled(status);
+    };
+    const handleDelete = async (cvId) => {
+        const confirmed = window.confirm('Bạn có chắc chắn muốn xóa CV này?');
+        if (confirmed) {
+            try {
+                await axios.delete(`/api/cvs/${cvId}`); // Gọi API để xóa khỏi cơ sở dữ liệu
+                setCvs((prevCvs) => prevCvs.filter((cv) => cv.Id !== cvId)); // Cập nhật lại state để xóa CV khỏi giao diện
+                alert('Xóa CV thành công');
+            } catch (error) {
+                console.error('Lỗi khi xóa CV:', error);
+                alert('Xóa CV không thành công');
+            }
+        }
+    };
 
   return (
     <div className="relative w-full h-[2050px] bg-[#FAF9F9]">
@@ -50,12 +79,12 @@ const ManagementCV = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-5">
-                {[1, 2, 3].map((_, index) => (
-                    <div key={index} className="w-[270px] bg-gray-100 p-4 rounded-lg relative">
+            {cvs.map((cv) => (
+                    <div key={cv.Id} className="w-[270px] bg-gray-100 p-4 rounded-lg relative">
                         <div className="w-full h-[300px] bg-gray-300 rounded mb-2 flex justify-center items-center relative">
                             <img src={images['icon_add.png']} alt="CV Icon" className="w-[100px] h-[100px]" />
-                            <h3 className="absolute left-[10px] bottom-[25px] text-lg font-medium text-gray-700">{`cv test ${index + 1}`}</h3>
-                            <div className="absolute left-[10px] bottom-[5px] text-xs text-gray-500">{`Cập nhật lần cuối 06-11-2024 21:24 PM`}</div>
+                            <h3 className="absolute left-[10px] bottom-[25px] text-lg font-medium text-gray-700">{cv.TieuDe}</h3>
+                            <div className="absolute left-[10px] bottom-[5px] text-xs text-gray-500">{`Cập nhật lần cuối ${new Date(cv.UpdatedAt).toLocaleString()}`}</div>
                         </div>
 
                         <div className="flex justify-between mt-4">
@@ -74,10 +103,10 @@ const ManagementCV = () => {
  
                         <button
                             className="absolute top-2 right-2 flex items-center bg-white border border-gray-300 rounded-lg p-2"
-                            onClick={handleClick}
+                            onClick={() => handleStarClick(cv.Id)}
                             >
                             <img
-                                src={isStarred ? images['star_yellow.png'] : images['star.png']} // Sử dụng ảnh tùy theo trạng thái
+                                src={starredCVs[cv.Id] ? images['star_yellow.png'] : images['star.png']} // Sử dụng ảnh tùy theo trạng thái
                                 alt="Star Icon"
                                 className="w-3 h-3 mr-1"
                             />
@@ -112,12 +141,12 @@ const ManagementCV = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-5">
-                {[1, 2, 3].map((_, index) => (
-                    <div key={index} className="w-[270px] bg-gray-100 p-4 rounded-lg relative">
+                {cvs.map((cv) => (
+                    <div key={cv.Id} className="w-[270px] bg-gray-100 p-4 rounded-lg relative">
                         <div className="w-full h-[300px] bg-gray-300 rounded mb-2 flex justify-center items-center relative">
                             <img src={images['icon_add.png']} alt="CV Icon" className="w-[100px] h-[100px]" />
-                            <h3 className="absolute left-[10px] bottom-[25px] text-lg font-medium text-gray-700">{`cv test ${index + 1}`}</h3>
-                            <div className="absolute left-[10px] bottom-[5px] text-xs text-gray-500">{`Cập nhật lần cuối 06-11-2024 21:24 PM`}</div>
+                            <h3 className="absolute left-[10px] bottom-[25px] text-lg font-medium text-gray-700">{cv.TieuDe}</h3>
+                            <div className="absolute left-[10px] bottom-[5px] text-xs text-gray-500">{`Cập nhật lần cuối ${new Date(cv.UpdatedAt).toLocaleString()}`}</div>
                         </div>
 
                         <div className="flex justify-between mt-4">
@@ -129,17 +158,20 @@ const ManagementCV = () => {
                                 <img src={images['download.png']} alt="Download Icon" className="w-5 h-4 mr-1" />
                                 Tải xuống
                             </button>
-                            <button className="flex items-center bg-gray-200 px-2 py-1 rounded text-xs text-black">
+                            <button
+                                className="flex items-center bg-gray-200 px-2 py-1 rounded text-xs text-black"
+                                onClick={() => handleDelete(cv.Id)}
+                            >
                                 <img src={images['delete.png']} alt="Delete Icon" className="w-4 h-4 mr-1" /> 
                             </button>
                         </div>
  
                         <button
                             className="absolute top-2 right-2 flex items-center bg-white border border-gray-300 rounded-lg p-2"
-                            onClick={handleClick}
+                            onClick={() => handleStarClick(cv.Id)}
                             >
                             <img
-                                src={isStarred ? images['star_yellow.png'] : images['star.png']} // Sử dụng ảnh tùy theo trạng thái
+                                src={starredCVs[cv.Id] ? images['star_yellow.png'] : images['star.png']} // Sử dụng ảnh tùy theo trạng thái
                                 alt="Star Icon"
                                 className="w-3 h-3 mr-1"
                             />

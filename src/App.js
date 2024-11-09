@@ -30,6 +30,7 @@ import OTPVerification from './components/Account/OTPVerification';
 import Menu from './components/Menu_NTD/Menu';
 
 import MenuManagementLayout from './components/Menu_NTD/MenuManagementLayout ';
+import { useParams } from 'react-router-dom';
 
 function App() {
   return (
@@ -49,7 +50,8 @@ function App() {
         <Route path="/saved-jobs-empty" element={<Form_Saved_Empty />} />
         <Route path="/applied-jobs" element={<><Header_NTV /><Search_Logged /><Applied_Jobs /><Footer /></>} />
         <Route path="/form-applied-empty" element={<Form_Applied_Empty />} />
-        <Route path="/job-details" element={<><Header_NTV /><Search_Logged /><Job_Details /><Footer /></>} />
+        {/* <Route path="/job-details" element={<><Header_NTV /><Search_Logged /><Job_Details /><Footer /></>} /> */}
+        <Route path="/job-details/:jobId" element={<><Header_NTV /><Search_Logged /><Job_Details /><Footer /></>} />
         <Route path="/company-list" element={<><Header_NTV /><Company_List /><Footer /></>} />
         <Route path="/company-top" element={<><Header_NTV /><Top_Company /><Footer /></>} />
         <Route path="/upload-cv" element={<><Header_NTV /><UploadCV /><Footer /></>} />

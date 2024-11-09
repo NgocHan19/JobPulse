@@ -22,6 +22,35 @@ const HomePage_NTV = () => {
   const [selectedFilter1, setSelectedFilter1] = useState('Địa điểm');
   const [selectedRegion, setSelectedRegion] = useState('Ngẫu nhiên');
 
+  const [jobs, setJobs] = useState([]);  // Lưu danh sách công việc
+  const [loading, setLoading] = useState(true);  // Trạng thái đang tải dữ liệu
+  const [error, setError] = useState(null);  // Lỗi nếu có khi gọi API
+
+  // Hàm gọi API để lấy danh sách công việc
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/jobs');  // Địa chỉ API của bạn
+        if (!response.ok) {
+          throw new Error('Không thể lấy danh sách công việc');
+        }
+        const data = await response.json();
+        setJobs(data);  // Cập nhật dữ liệu vào state
+      } catch (err) {
+        setError(err.message);  // Lưu lỗi nếu có
+      } finally {
+        setLoading(false);  // Thay đổi trạng thái khi đã tải xong
+      }
+    };
+
+    fetchJobs();  // Gọi hàm fetchJobs khi component mount
+  }, []);  // [] có nghĩa là chỉ chạy một lần khi component mount
+
+  // Kiểm tra xem có lỗi hay đang tải dữ liệu không
+  if (loading) return <div>Đang tải dữ liệu...</div>;
+  if (error) return <div>Lỗi: {error}</div>;
+
+
   const toggleCityDropdown = () => {
     setCityDropdownOpen(!cityDropdownOpen);
     if (filterDropdownOpen) {
@@ -234,34 +263,18 @@ const HomePage_NTV = () => {
           </div> 
         </div>
         
-        <div className="mt-[150px] ml-[100px] flex flex-wrap gap-5">
-          {Array(6).fill(0).map((_, index) => (
-            <div key={index} className="relative w-[420px] h-[105px] bg-white rounded-md" >
-              <div className="absolute w-[70px] h-[76.25px] left-[20px] top-[15px]">
-                <img src={images['image1.png']} alt="Company" className="w-full h-full object-cover" />
+        <div className="absolute w-full top-[100px]">
+          <div className="flex flex-wrap justify-start">
+            {jobs.map((job, index) => (
+              <div key={index} className="job-card w-[300px] h-[200px] bg-white p-4 m-2 border border-[#ddd] shadow-lg rounded-lg">
+                <img src={job.Hình} alt="Job image" className="w-full h-[120px] object-cover rounded-t-md" />
+                <h2 className="font-bold text-lg text-[#1A73E8]">{job['Tiêu Đề']}</h2>
+                <p className="text-sm text-gray-600">{job['Tên Công Ty']}</p>
+                <p className="text-sm text-gray-600">{job['Mức Lương']}</p>
+                <p className="text-sm text-gray-600">{job['Địa Điểm']}</p>
               </div>
-
-              <div className="absolute left-[130px] top-[10px]">
-                <button className="text-base font-normal text-black mb-1 max-w-[220px] truncate"
-                  onClick={() => navigate('/job-details')}  >Tên vị trí ứng tuyển</button>
-                <p className="text-sm font-normal text-gray-400 mb-1 max-w-[250px] truncate">Tên công ty</p>
-              </div>
-
-              <div className="absolute left-[130px] top-[65px] flex space-x-2 mt-2">
-                <div className="w-[80px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
-                  <p className="text-xs text-black">Giá</p>
-                </div>
-                <div className="w-[100px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
-                  <p className="text-xs text-black">Địa điểm</p>
-                </div>
-              </div>
-
-              <div className="absolute top-[8px] right-[10px] w-[45px] h-[20px] bg-red-500 rounded-full flex items-center justify-center">
-                <p className="text-xs text-white">Hot</p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         
         <div className="relative w-full h-full left-[680px] top-[20px]">
           <div className="absolute w-[187px] h-[40px] bg-[#F1F3F4] flex items-center justify-between px-2"> 
@@ -506,6 +519,8 @@ const HomePage_NTV = () => {
         </div>
       </div>
     </div>
+  </div>
+
   );
 };
 

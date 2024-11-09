@@ -1,13 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; // Import useParams để lấy ID từ URL
 import images from '../../images';
 
 const Job_Details = () => {
-  const [selectedIcon, setSelectedIcon] = useState();
+  const [selectedIcon, setSelectedIcon] = useState([]);
+  const { jobId } = useParams(); // Lấy ID từ URL
+  const [jobDetails, setJobDetails] = useState(null);
+  const [loading, setLoading] = useState(true); // Thêm state loading
+  const [error, setError] = useState(null); // Thêm state error
+  const savedJob = localStorage.getItem(`job-${jobId}`); // Lấy job từ localStorage theo jobId
+  const [isSaved, setIsSaved] = useState(false);
 
-  const handleIconClick = (path) => {
-    setSelectedIcon(path);
+  const handleIconClick = (iconType) => {
+    setSelectedIcon(iconType);
+  };
+  
+  // Hàm xử lý khi người dùng nhấn nút Lưu tin
+  const handleSaveClick = () => {
+    // Thay đổi trạng thái lưu khi nhấn nút
+    setIsSaved(prevState => !prevState);  // Nếu đang lưu thì bỏ lưu, và ngược lại
+    if (isSaved) {
+      // Xóa khỏi yêu thích
+      alert('Đã xóa khỏi danh sách yêu thích');
+    } else {
+      // Lưu vào danh sách yêu thích
+      alert('Đã lưu vào danh sách yêu thích');
+    }
   };
 
+  useEffect(() => {
+    // Kiểm tra xem jobId có hợp lệ không
+    if (!jobId) {
+      setError('Không tìm thấy ID công việc.');
+      setLoading(false);
+      return;
+    }
+
+    // Fetch API lấy chi tiết công việc từ backend dựa trên ID lấy từ URL
+    const fetchJobDetails = async () => {
+      try {
+        // Đảm bảo đường dẫn API đúng và có thể bao gồm baseURL nếu cần
+        const response = await fetch(`http://localhost:5000/api/job-details/${jobId}`);
+        
+        // Kiểm tra mã phản hồi HTTP
+        if (!response.ok) {
+          const errorMessage = `Lỗi từ server: ${response.status} - ${response.statusText}`;
+          throw new Error(errorMessage);
+        }
+        
+        const data = await response.json();
+        setJobDetails(data);
+      } catch (error) {
+        console.error('Lỗi khi lấy chi tiết công việc:', error);
+        setError(error.message); // Cập nhật thông báo lỗi
+      } finally {
+        setLoading(false); // Hoàn thành quá trình tải dữ liệu
+      }
+    };
+    fetchJobDetails();
+  }, [jobId]); // Chạy lại effect khi ID thay đổi
+
+  if (loading) {
+    return <div>Đang tải dữ liệu...</div>; // Trạng thái khi đang tải dữ liệu
+  }
+
+  if (error) {
+    return <div>{error}</div>; // Hiển thị lỗi nếu có
+  }
+
+  // Nếu có chi tiết công việc, render chúng
+  if (jobDetails) {
   return (
     <div className="relative w-[1920px] h-[2050px] top-[100px] bg-[#FAF9F9]">
       {/* Chi tiết việc làm*/}
@@ -24,14 +86,14 @@ const Job_Details = () => {
       <div className="relative w-full">
         <div className="absolute top-[60px] left-[100px] w-[800px] h-[300px] bg-white rounded-lg shadow-md">
           <div className="absolute top-[20px] left-[30px] font-bold text-2xl leading-[29px] text-black">
-            Tiêu đề
+          {jobDetails.TieuDe}
           </div>
           <div className="absolute top-[80px] left-0 right-0 flex justify-between px-[45px]">
             <div className="flex items-start space-x-3">
               <img src={images['icon_salary.png']} alt="icon" className="w-[35px] h-[35px]" />
               <div className="flex flex-col">
                 <div className="font-medium text-lg leading-[24px] text-black">Mức lương</div>
-                <div className="text-base leading-[24px] text-black">MucLuong</div>
+                <div className="text-base leading-[24px] text-black">{jobDetails.MucLuong}</div>
               </div>
             </div>
 
@@ -39,7 +101,7 @@ const Job_Details = () => {
               <img src={images['icon_location.png']} alt="icon" className="w-[35px] h-[35px]" />
               <div className="flex flex-col">
                 <div className="font-medium text-lg leading-[24px] text-black">Địa điểm</div>
-                <div className="text-base leading-[24px] text-black">DiaDiem</div>
+                <div className="text-base leading-[24px] text-black">{jobDetails.DiaDiem}</div>
               </div>
             </div>
 
@@ -47,16 +109,16 @@ const Job_Details = () => {
               <img src={images['icon_experience.png']} alt="icon" className="w-[35px] h-[35px]" />
               <div className="flex flex-col">
                 <div className="font-medium text-lg leading-[24px] text-black">Kinh nghiệm</div>
-                <div className="text-base leading-[24px] text-black">KinhNghiem</div>
+                <div className="text-base leading-[24px] text-black">{jobDetails.KinhNghiem}</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute top-[230px] left-[120px] w-[270px] h-[40px] bg-[#F1F3F4] flex items-center px-4 rounded-lg">
+        <div className="absolute top-[230px] left-[120px] w-[280px] h-[40px] bg-[#F1F3F4] flex items-center px-4 rounded-lg">
           <img src={images['icon_lock.png']} alt="icon lock" className="w-[20px] h-[20px]" />
           <span className="ml-3 text-base leading-[24px] text-black ">
-            Hạn nộp hồ sơ: 10/11/2024
+            Hạn nộp hồ sơ: {new Date(jobDetails.HanNopHoSo).toLocaleDateString('vi-VN')}
           </span>
         </div>
 
@@ -66,34 +128,42 @@ const Job_Details = () => {
           </span>
         </button>
 
-        <button className="absolute top-[285px] left-[700px] w-[180px] h-[40px] bg-white border border-[#1A73E8] rounded flex items-center justify-center">
-          <img src={images['icon_heart_blue.png']} alt="icon heart" className="w-[20px] h-[20px]" />
-          <span className="ml-2 font-inter font-medium text-[20px] leading-[24px] text-[#1A73E8]">
-            Lưu tin
-          </span>
-        </button>
+        <button
+        className="absolute top-[285px] left-[700px] w-[180px] h-[40px] bg-white border border-[#1A73E8] rounded flex items-center justify-center"
+        onClick={handleSaveClick} // Gọi hàm khi nhấn nút
+      >
+        <img
+          src={isSaved ? images['icon_heart_red.png'] : images['icon_heart_blue.png']} // Thay đổi icon khi nhấn
+          alt="icon heart"
+          className="w-[20px] h-[20px]"
+        />
+        <span className="ml-2 font-inter font-medium text-[20px] leading-[24px] text-[#1A73E8]">
+          {isSaved ? 'Đã lưu' : 'Lưu tin'}
+        </span>
+      </button>
+
       </div>
 
       {/* Công ty */}
       <div className="absolute top-[60px] left-[940px] w-[450px] h-[300px] bg-white rounded-lg shadow-md">
         <div className="absolute top-[20px] left-[20px] flex items-center space-x-2">
           <img src={images['image1.png']} alt="img company" className="w-[60px] h-[60px]" />
-          <div className="font-bold text-lg leading-[29px] text-black max-w-[320px] overflow-hidden whitespace-nowrap text-ellipsis">Tên công ty</div>
+          <div className="font-bold text-lg leading-[29px] text-black max-w-[320px] overflow-hidden whitespace-nowrap text-ellipsis">{jobDetails.TenCongTy}</div>
         </div>
 
         <div className="absolute top-[120px] left-[20px] flex items-center space-x-2">
           <img src={images['icon_scale.png']} alt="icon" className="w-[20px] h-[20px]" />
-          <div className="font-inter font-medium text-[14px] leading-[17px] text-black">Quy mô:</div>
+          <div className="font-inter font-medium text-[14px] leading-[17px] text-black">Quy mô: {jobDetails.QuyMo}</div>
         </div>
 
         <div className="absolute top-[170px] left-[20px] flex items-center space-x-2">
           <img src={images['icon_industry.png']} alt="icon" className="w-[20px] h-[20px]" />
-          <div className="font-inter font-medium text-[14px] leading-[17px] text-black">Lĩnh vực:</div>
+          <div className="font-inter font-medium text-[14px] leading-[17px] text-black">Lĩnh vực: {jobDetails.LinhVuc}</div>
         </div>
 
         <div className="absolute top-[220px] left-[20px] flex items-center space-x-2">
           <img src={images['icon_location_black_company.png']} alt="icon" className="w-[20px] h-[20px]" />
-          <div className="font-inter font-medium text-[14px] leading-[17px] text-black">Địa điểm:</div>
+          <div className="font-inter font-medium text-[14px] leading-[17px] text-black">Địa điểm: {jobDetails.DiaDiem}</div>
         </div>
 
         <button className="absolute bottom-[20px] left-[140px] flex items-center space-x-2 cursor-pointer">
@@ -121,58 +191,35 @@ const Job_Details = () => {
             Mô tả công việc
           </div>
           <div className="text-black text-sm leading-[24px] max-w-[700px]">
-            - Đi phát triển kênh phân phối bán buôn Keo Silicone tại các cửa hàng nhôm kính, các nhà buôn phụ kiện nhôm, sắt. <br />
-            - Tìm hiểu, nghiên cứu về các sản phẩm của công ty để giới thiệu, tư vấn và giải đáp thắc mắc cho khách hàng. <br />
-            - Đàm phán, thương lượng với khách hàng về giá cả, hợp đồng, tiến hành chốt đơn và hỗ trợ khách hàng ký hợp đồng. <br />
-            - Chăm sóc khách hàng sau khi bán hàng, duy trì mối quan hệ với khách hàng hiện tại. <br />
-            - Tìm kiếm nguồn khách hàng mới, có nhu cầu xây dựng data, mở rộng phát triển quan hệ. <br />
-            - Thực hiện các công việc khác theo sự phân công của cấp trên. <br />
-            - Sản phẩm bán buôn, chỉ phát triển kênh phân phối (Ưu tiên người có kinh nghiệm).
+            {jobDetails.MoTa}
           </div>
           
           <div className="font-bold text-lg leading-[29px] text-black mt-6 mb-3">
             Yêu cầu ứng viên
           </div>
           <div className="text-black text-sm leading-[24px]">
-            - Không yêu cầu kinh nghiệm. <br />
-            - Bắt buộc có bằng lái xe ô tô B2. <br />
-            - Năng động, nhiệt tình, có tinh thần cầu tiến. <br />
-            - Kỹ năng giao tiếp, đàm phán tốt. <br />
-            - Kỹ năng làm việc độc lập và làm việc nhóm. <br />
-            - Có khả năng chịu áp lực công việc cao. <br />
-            - Ưu tiên ứng viên có kiến thức về sản xuất.
+            {jobDetails.YeuCau}
           </div>
 
           <div className="font-bold text-lg leading-[29px] text-black mt-6 mb-3">
             Quyền lợi
           </div>
           <div className="text-black text-sm leading-[24px]">
-            - Thu nhập trung bình: 10 - 30 triệu (lương cứng 8 triệu + thưởng doanh số). <br />
-            - Có cơ hội thăng tiến cao. <br />
-            - Thưởng doanh thu, thưởng doanh số, thưởng KPI không giới hạn. <br />
-            - Thưởng các ngày lễ, Tết, sinh nhật, thâm niên,... <br />
-            - Du lịch hàng năm. <br />
-            - Đóng BHXH, BHYT. <br />
-            - Làm việc trong môi trường chuyên nghiệp, năng động có cơ hội thăng tiến. <br />
-            - Được đào tạo chuyên nghiệp và nhiệt tình, chăm sóc sức khỏe. <br />
-            - Được cấp các trang thiết bị làm việc, ô tô, chi phí khi đi công tác.
+            {jobDetails.QuyenLoi}
           </div>
 
           <div className="font-bold text-lg leading-[29px] text-black mt-6 mb-3">
             Địa điểm làm việc
           </div>
           <div className="text-black text-sm leading-[24px]">
-            - Hà Nội: Biệt thự 41 BT2, Trần Thủ Độ, Hoàng Liệt, Hoàng Mai. <br />
-            - Long An: Lô H23 - H28, đường N1, KCN Nam Thuận, Đức Hoà. <br />
-            - Hồ Chí Minh.
+            {jobDetails.DiaDiem}
           </div>
 
           <div className="font-bold text-lg leading-[29px] text-black mt-8">
             Cách thức ứng tuyển
           </div>
           <div className="text-[#D84432] text-sm leading-[24px]">
-            Ứng viên nộp hồ sơ trực tuyến bằng cách bấm Ứng tuyển ngay dưới đây. <br />
-            Hạn nộp hồ sơ: 10/11/2024.
+            {jobDetails.CachThucUngTuyen}
           </div>
         </div>
 
@@ -199,7 +246,7 @@ const Job_Details = () => {
           <img src={images['icon_rank.png']} alt="Cấp bậc" className="w-[40px] h-[40px] bg-[#1A73E8] rounded-full" />
           <div className="flex flex-col">
             <div className="font-normal text-[14px] leading-[17px] text-black mb-2">Cấp bậc</div>
-            <div className="font-bold text-[14px] leading-[17px] text-black">Nhân viên</div>
+            <div className="font-bold text-[14px] leading-[17px] text-black">{jobDetails.CapBac}</div>
           </div>
         </div>
 
@@ -207,7 +254,7 @@ const Job_Details = () => {
           <img src={images['icon_experience1.png']} alt="Cấp bậc" className="w-[40px] h-[40px] bg-[#1A73E8] rounded-full" />
           <div className="flex flex-col">
             <div className="font-normal text-[14px] leading-[17px] text-black mb-2">Kinh nghiệm</div>
-            <div className="font-bold text-[14px] leading-[17px] text-black">1-3 năm</div>
+            <div className="font-bold text-[14px] leading-[17px] text-black">{jobDetails.KinhNghiem}</div>
           </div>
         </div>
         
@@ -215,7 +262,7 @@ const Job_Details = () => {
           <img src={images['icon_quantity.png']} alt="Cấp bậc" className="w-[40px] h-[40px] bg-[#1A73E8] rounded-full" />
           <div className="flex flex-col">
             <div className="font-normal text-[14px] leading-[17px] text-black mb-2">Số lượng tuyển</div>
-            <div className="font-bold text-[14px] leading-[17px] text-black">50</div>
+            <div className="font-bold text-[14px] leading-[17px] text-black">{jobDetails.SoLuongTuyen}</div>
           </div>
         </div>
         
@@ -223,7 +270,7 @@ const Job_Details = () => {
           <img src={images['icon_working_form.png']} alt="Cấp bậc" className="w-[40px] h-[40px] bg-[#1A73E8] rounded-full" />
           <div className="flex flex-col">
             <div className="font-normal text-[14px] leading-[17px] text-black mb-2">Hình thức làm việc</div>
-            <div className="font-bold text-[14px] leading-[17px] text-black">Nhân viên</div>
+            <div className="font-bold text-[14px] leading-[17px] text-black">{jobDetails.HinhThucLamViec}</div>
           </div>
         </div>
 
@@ -231,7 +278,7 @@ const Job_Details = () => {
           <img src={images['icon_gender.png']} alt="Cấp bậc" className="w-[40px] h-[40px] bg-[#1A73E8] rounded-full" />
           <div className="flex flex-col">
             <div className="font-normal text-[14px] leading-[17px] text-black mb-2">Giới tính</div>
-            <div className="font-bold text-[14px] leading-[17px] text-black">Nam</div>
+            <div className="font-bold text-[14px] leading-[17px] text-black">{jobDetails.GioiTinh}</div>
           </div>
         </div>
       </div>
@@ -296,6 +343,9 @@ const Job_Details = () => {
                     </div>
     </div>
   );
+}
+  return <div>Không tìm thấy chi tiết công việc.</div>;
 };
+
 
 export default Job_Details;

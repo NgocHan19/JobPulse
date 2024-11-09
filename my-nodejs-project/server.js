@@ -5,10 +5,25 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
 
 const app = express();
+
+// Set CORS options
+const corsOptions = {
+  origin: 'http://localhost:3000', // Allow all origins (use cautiously)
+  methods: 'GET, POST, PUT, DELETE',
+  allowedHeaders: 'Content-Type, Authorization',
+  credentials: true, 
+};
+
+// Apply CORS middleware with the options
+app.use(cors(corsOptions));
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));  
 
 // SQL Server configuration
 const config = {
@@ -61,7 +76,7 @@ async function sendVerificationEmail(email, verificationToken) {
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, hoTen } = req.body; 
   try {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -69,7 +84,7 @@ app.post('/register', async (req, res) => {
     const tokenExpiration = new Date(Date.now() + 5 * 60 * 1000); // Expires in 5 minutes
 
     // Insert the account data into SQL Server
-    const request = new sql.Request();
+    let request = new sql.Request();
     const accountResult = await request
       .input('Email', sql.NVarChar, email)
       .input('Password', sql.VarBinary, Buffer.from(hashedPassword))
@@ -80,11 +95,19 @@ app.post('/register', async (req, res) => {
               SELECT SCOPE_IDENTITY() AS AccountID;`);
     const accountId = accountResult.recordset[0].AccountID;
 
-    // Assign default role 'Người Tìm Việc' to Account
+    // Insert the default role 'Người Tìm Việc' into AccountRole
+    request = new sql.Request(); // Create a new request for each query
     await request
       .input('AccountID', sql.Int, accountId)
-      .input('RoleID', sql.Int, 1) // Assuming 1 is the RoleID for 'Người Tìm Việc'
+      .input('RoleID', sql.Int, 1) // 'Người Tìm Việc'
       .query(`INSERT INTO AccountRole (AccountID, RoleID, CreatedAt) VALUES (@AccountID, @RoleID, GETDATE())`);
+
+    // Insert the full name (HoTen) into UserProfile
+    request = new sql.Request(); // Create another new request
+    await request
+      .input('AccountID', sql.Int, accountId)
+      .input('HoTen', sql.NVarChar, hoTen)
+      .query(`INSERT INTO UserProfile (AccountID, HoTen, CreatedAt) VALUES (@AccountID, @HoTen, GETDATE())`);
 
     // Send the OTP email
     const emailSent = await sendVerificationEmail(email, verificationToken);
@@ -123,8 +146,8 @@ app.post('/login', async (req, res) => {
     }
 
     // Tạo JWT token sau khi đăng nhập thành công
-    const user = result.recordset[0];
-    const token = jwt.sign({ userID: user.AccountID, email: email }, 'your_jwt_secret', { expiresIn: '1h' });
+    const jwtSecret = process.env.JWT_SECRET || 'your_default_jwt_secret';
+    const token = jwt.sign({ userID: result.recordset[0].AccountID, email: email }, jwtSecret, { expiresIn: '1h' });
 
     // Trả về token cho người dùng
     res.status(200).json({ message: 'Đăng nhập thành công!', token });
@@ -137,6 +160,7 @@ app.post('/login', async (req, res) => {
 // OTP Verification endpoint
 app.post('/OTPVerification', async (req, res) => {
   const { email, verificationToken } = req.body;
+
   try {
     const request = new sql.Request();
     const result = await request
@@ -148,7 +172,9 @@ app.post('/OTPVerification', async (req, res) => {
     }
 
     const { VerificationToken, TokenExpiration } = result.recordset[0];
-    if (VerificationToken !== verificationToken) {
+
+    // Ensure both tokens are strings and trim any whitespace
+    if (String(VerificationToken).trim() !== String(verificationToken).trim()) {
       return res.status(400).json({ message: 'Mã xác thực không chính xác.' });
     }
 
@@ -156,7 +182,6 @@ app.post('/OTPVerification', async (req, res) => {
       return res.status(400).json({ message: 'Mã xác thực đã hết hạn.' });
     }
 
-    // Update the account's verification status
     await request.query(`UPDATE Account SET IsVerified = 1, VerificationToken = NULL, TokenExpiration = NULL WHERE Email = '${email}'`);
     res.json({ message: 'Xác thực tài khoản thành công.' });
   } catch (error) {
@@ -168,62 +193,86 @@ app.post('/OTPVerification', async (req, res) => {
 // Additional endpoints for UserProfile, AccountRole, etc., would follow similar adjustments
 
 
-
-// Cấu hình Multer để lưu trữ file
+// Cấu hình lưu trữ cho Multer
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Thư mục để lưu trữ CV
+  destination: function (req, file, cb) {
+    const uploadDir = './uploads/';
+
+    // Kiểm tra nếu thư mục chưa tồn tại thì tạo nó
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
+
+    // Lưu trữ tệp trong thư mục uploads
+    cb(null, uploadDir);
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Đặt tên file độc nhất dựa vào thời gian
-  }
+  filename: function (req, file, cb) {
+    // Đổi tên tệp khi lưu (bảo đảm không trùng tên)
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
 });
 
-const upload = multer({ storage: storage });
+// Cấu hình Multer với giới hạn kích thước tệp
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 },  // Giới hạn kích thước tệp là 10MB
+});
 
-// Middleware xác thực JWT
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  
-  if (!token) return res.status(401).json({ message: 'Không có token, vui lòng đăng nhập.' });
+// Cấu hình middleware cho phép gửi dữ liệu từ frontend
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-  jwt.verify(token, 'your_jwt_secret', (err, user) => {
-    if (err) return res.status(403).json({ message: 'Token không hợp lệ.' });
-    req.user = user;  // Lưu thông tin người dùng vào đối tượng req
-    next();
-  });
-};
-
-// API tải lên CV
-app.post('/uploadCV', authenticateToken, upload.single('cvFile'), async (req, res) => {
+// API tải lên CV mà không yêu cầu xác thực
+app.post('/uploadCV', upload.single('cvFile'), async (req, res) => {
   try {
-    const { email, fullName, jobPosition } = req.user; // Lấy thông tin người dùng từ token
-    const cvFilePath = req.file ? req.file.path : null;
-
+    if (!req.file) {
+      throw new Error("Không có tệp được gửi lên.");
+    }
+    
+    const cvFilePath = req.file.path;
+    const { TieuDe } = req.body;
+    
     if (!cvFilePath) {
       return res.status(400).json({ message: 'Vui lòng chọn tệp CV để tải lên.' });
     }
+    
+    if (!TieuDe) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp tiêu đề cho CV.' });
+    }
 
-    const pool = await sql.connect(config); // Đảm bảo bạn sử dụng đúng cấu hình kết nối SQL
-    const result = await pool.request()
+    const pool = await sql.connect(config);
+
+    await pool.request()
       .input('FilePathAttribute', sql.NVarChar(sql.MAX), cvFilePath)
-      .input('TieuDe', sql.NVarChar(255), jobPosition) // Ví dụ sử dụng tên vị trí làm tiêu đề
-      .input('CTCV_ID', sql.Int, 1) // Cập nhật giá trị thực tế của CTCV_ID theo yêu cầu
-      .input('UserID', sql.Int, req.user.userID) // Lấy từ token đã lưu
+      .input('TieuDe', sql.NVarChar(255), TieuDe)
       .query(`
-        INSERT INTO CV (FilePathAttribute, TieuDe, CTCV_ID, UserID, CreatedAt, UpdatedAt)
-        VALUES (@FilePathAttribute, @TieuDe, @CTCV_ID, @UserID, GETDATE(), GETDATE())
+        INSERT INTO CV (FilePathAttribute, TieuDe, CreatedAt, UpdatedAt)
+        VALUES (@FilePathAttribute, @TieuDe, GETDATE(), GETDATE());
       `);
 
     res.status(200).json({ message: 'CV đã được tải lên thành công.' });
   } catch (error) {
-    console.error('Lỗi khi tải lên CV:', error);
-    res.status(500).json({ message: 'Lỗi khi tải lên CV.' });
+    console.error('Lỗi khi tải lên CV:', error);  // Ghi lại chi tiết lỗi
+    res.status(500).json({ message: 'Lỗi khi tải lên CV. Vui lòng thử lại sau.', error: error.message });
   }
 });
 
 
+// API lấy danh sách CV đã tải lên
+app.get('/api/getCVs', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);  // config là thông tin kết nối cơ sở dữ liệu
+    const result = await pool.request()
+      .query('SELECT CV_ID, TieuDe, FilePathAttribute, CreatedAt, UpdatedAt FROM CV ORDER BY CreatedAt DESC');
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: 'Không có CV nào trong hệ thống.' });
+    }
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách CV:', error);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách CV. Vui lòng thử lại sau.' });
+  }
+});
 
 app.post("/change-password", async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
@@ -256,6 +305,207 @@ app.post("/change-password", async (req, res) => {
   }
 });
 
+// API lấy danh sách tin tuyển dụng
+app.get('/api/jobs', async (req, res) => {
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool.request().query(`
+      SELECT * FROM TinTuyenDung;
+      SELECT 
+        TTD.TieuDe, 
+        TTD.MucLuong, 
+        TTD.DiaDiem, 
+        CTTTD.HinhURL, 
+        CT.TenCongTy
+      FROM TinTuyenDung TTD
+      LEFT JOIN ThongTinTinTuyenDung CTTTD ON TTD.CTTTD_ID = CTTTD.CTTTD_ID
+      LEFT JOIN CongTy CT ON TTD.UserID = CT.CT_ID
+      WHERE TTD.TrangThai = 'Đã Duyệt';
+    `);
+
+    if (result.recordsets[0].length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy công việc nào.' });
+    }
+
+    const jobListings = result.recordsets[0]; 
+    const jobDetails = result.recordsets[1];  
+    
+    // Trả về dữ liệu dưới dạng JSON
+    res.json({ jobListings, jobDetails });
+
+  } catch (err) {
+    console.error("Lỗi khi lấy danh sách công việc: ", err);
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách công việc', error: err.message });
+  }
+});
+
+// API để lấy danh sách địa điểm từ bảng TinTuyenDung
+app.get('/api/regions', (req, res) => {
+  const query = 'SELECT DISTINCT DiaDiem FROM TinTuyenDung'; // Lấy các địa điểm duy nhất từ bảng TinTuyenDung
+  db.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Lỗi khi truy vấn dữ liệu' });
+    }
+    // Trả về danh sách địa điểm cho frontend
+    const regions = results.map(row => row.DiaDiem); // Dùng 'DiaDiem' thay vì 'region'
+    res.json(regions);
+  });
+});
+
+// Endpoint lấy danh sách hình ảnh từ bảng CongTy
+app.get('/api/company-images', (req, res) => {
+  const query = 'SELECT HinhURL FROM CongTy';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching images:', err);
+      res.status(500).send('Server error');
+      return;
+    }
+    res.json({ images: results.map(row => row.HinhURL) }); // Trả về danh sách URL hình ảnh
+  });
+});
+
+// API lấy chi tiết công việc từ database
+app.get('/api/job-details/:jobId', async (req, res) => {
+  const jobId = parseInt(req.params.jobId, 10);
+
+  if (isNaN(jobId)) {
+    return res.status(400).json({ message: 'Invalid job ID' });
+  }
+
+  const query = `
+    SELECT 
+      t.TieuDe, 
+      t.MucLuong, 
+      t.DiaDiem, 
+      t.KinhNghiem, 
+      t.HanNopHoSo,  
+      t.ViTriUngTuyen, 
+      t.CreatedAt,
+      c.TenCongTy, 
+      c.QuyMo, 
+      c.LinhVuc, 
+      c.DiaChiCT, 
+      tt.CapBac, 
+      tt.SoLuongTuyen, 
+      tt.HinhThucLamViec, 
+      tt.GioiTinh, 
+      tt.MoTa, 
+      tt.YeuCauUngVien, 
+      tt.QuyenLoi, 
+      tt.CachThucUngTuyen 
+    FROM 
+      TinTuyenDung t
+    JOIN 
+      CongTy c ON t.CTTTD_ID = c.CT_ID 
+    JOIN 
+      ThongTinTinTuyenDung tt ON t.CTTTD_ID = tt.CTTTD_ID
+    WHERE 
+      t.TTD_ID = @jobId;
+  `;
+
+  try {
+    // Kết nối với cơ sở dữ liệu
+    await sql.connect(config);
+
+    // Khai báo tham số đầu vào cho query
+    const request = new sql.Request();
+    request.input('jobId', sql.Int, jobId); // Khai báo tham số jobId và kiểu dữ liệu
+
+    // Thực hiện truy vấn SQL
+    const result = await request.query(query);
+
+    // Kiểm tra nếu không có dữ liệu nào
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    // Trả về dữ liệu tìm thấy
+    res.json(result.recordset[0]);
+  } catch (err) {
+    console.error('Error executing query:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  } finally {
+    // Đảm bảo kết nối được đóng
+    await sql.close();
+  }
+});
+
+// API lấy chi tiết công việc yêu thích từ database
+app.get('/api/favorite-job-details/:jobId', async (req, res) => {
+  const jobId = parseInt(req.params.jobId, 10);
+
+  if (isNaN(jobId)) {
+    return res.status(400).json({ message: 'Invalid job ID' });
+  }
+
+  const query = `
+    SELECT 
+      t.TieuDe, 
+      t.MucLuong, 
+      t.DiaDiem, 
+      t.KinhNghiem, 
+      t.HanNopHoSo,  
+      t.ViTriUngTuyen, 
+      t.CreatedAt,
+      c.TenCongTy, 
+      c.QuyMo, 
+      c.LinhVuc, 
+      c.DiaChiCT, 
+      tt.CapBac, 
+      tt.SoLuongTuyen, 
+      tt.HinhThucLamViec, 
+      tt.GioiTinh, 
+      tt.MoTa, 
+      tt.YeuCauUngVien, 
+      tt.QuyenLoi, 
+      tt.CachThucUngTuyen, 
+      IFNULL(f.UserID, 'none') AS IsFavorite  -- Kiểm tra nếu công việc này đã được yêu thích
+    FROM 
+      TinTuyenDung t
+    JOIN 
+      CongTy c ON t.CTTTD_ID = c.CT_ID 
+    JOIN 
+      ThongTinTinTuyenDung tt ON t.CTTTD_ID = tt.CTTTD_ID
+    LEFT JOIN
+      YeuThich f ON t.TTD_ID = f.JobID AND f.UserID = @userId  -- Kiểm tra công việc yêu thích của người dùng
+    WHERE 
+      t.TTD_ID = @jobId;
+  `;
+
+  try {
+    const userId = req.userId; // Giả sử bạn lấy được userId từ session hoặc JWT
+
+    if (!userId) {
+      return res.status(403).json({ message: 'User not authenticated' });
+    }
+
+    // Kết nối với cơ sở dữ liệu
+    await sql.connect(config);
+
+    // Khai báo tham số đầu vào cho query
+    const request = new sql.Request();
+    request.input('jobId', sql.Int, jobId); // Khai báo tham số jobId
+    request.input('userId', sql.Int, userId); // Khai báo tham số userId (người dùng yêu thích công việc)
+
+    // Thực hiện truy vấn SQL
+    const result = await request.query(query);
+
+    // Kiểm tra nếu không có dữ liệu nào
+    if (result.recordset.length === 0) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    // Trả về dữ liệu tìm thấy
+    res.json(result.recordset[0]);
+  } catch (err) {
+    console.error('Error executing query:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  } finally {
+    // Đảm bảo kết nối được đóng
+    await sql.close();
+  }
+});
 
 
 const PORT = process.env.PORT || 5000;

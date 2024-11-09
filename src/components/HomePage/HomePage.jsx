@@ -1,7 +1,8 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState , useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 import images from '../../images';
 import './Carousel.css';
-
+import axios from 'axios';
 
 const provincesAndCities = [
   "Tất cả tỉnh/thành phố", "Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Nha Trang",
@@ -16,12 +17,17 @@ const provincesAndCities = [
 ];
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [selectedCity, setSelectedCity] = useState("Tất cả tỉnh/thành phố");
   const [selectedFilter, setSelectedFilter] = useState('Địa điểm');
   const [selectedFilter1, setSelectedFilter1] = useState('Địa điểm');
   const [selectedRegion, setSelectedRegion] = useState('Ngẫu nhiên');
+  const [regions, setRegions] = useState([]); // State chứa các địa điểm
+  const [jobs, setJobs] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const jobsPerPage = 6;
 
   const toggleCityDropdown = () => {
     setCityDropdownOpen(!cityDropdownOpen);
@@ -37,12 +43,6 @@ const HomePage = () => {
     }
   };
 
-  const toggleFilterDropdown1 = () => {
-    setFilterDropdownOpen(!filterDropdownOpen);
-    if (cityDropdownOpen) {
-      setCityDropdownOpen(false);
-    }
-  };
 
   const handleCityClick = (city) => {
     setSelectedCity(city);
@@ -60,10 +60,6 @@ const HomePage = () => {
     setFilterDropdownOpen(false);
   };
 
-  const handleFilterClick1 = (filter) => {
-    setSelectedFilter(filter);
-    setFilterDropdownOpen(false);
-  };
 
   const handleSelect = (selection) => {
     console.log("Selected:", selection);
@@ -114,14 +110,42 @@ const HomePage = () => {
     const interval = setInterval(() => {
       handleNextImage();
     }, 3000);
+  
     return () => clearInterval(interval);
-  }, []);
+  }, [currentIndex]); // Theo dõi currentIndex để tự động cập nhật sau mỗi thay đổi
 
-  // Tính toán hình ảnh hiện tại để hiển thị
-  const displayedImages = allImages.slice(
-    currentIndex,
-    currentIndex + imagesPerPage
-  );
+// Hàm tính toán hình ảnh hiện tại để hiển thị
+const displayedImages = allImages.slice(
+  currentIndex * imagesPerPage, // Bắt đầu từ chỉ số tính theo pages
+  (currentIndex + 1) * imagesPerPage // Kết thúc tại page sau
+);
+  
+useEffect(() => {
+  axios.get('http://localhost:5000/api/jobs')
+    .then(response => {
+      console.log('API Response:', response.data);
+      if (response.data && response.data.jobListings) {
+        setJobs(response.data.jobListings); // Use correct response structure
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching job data:', error);
+    });
+}, []);
+
+const indexOfLastJob = (currentPage + 1) * jobsPerPage;
+const indexOfFirstJob = currentPage * jobsPerPage;
+const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+
+const totalPages = Math.ceil(jobs.length / jobsPerPage);
+
+const prevPage = () => {
+  if (currentPage > 0) setCurrentPage(currentPage - 1);
+};
+
+const nextPage = () => {
+  if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1);
+};
   
 
 
@@ -235,58 +259,75 @@ const HomePage = () => {
         </div>
         
         <div className="mt-[150px] ml-[100px] flex flex-wrap gap-5">
-          {Array(6).fill(0).map((_, index) => (
+        {Array.isArray(currentJobs) && currentJobs.length > 0 ? (
+          currentJobs.map((job, index) => (
             <div key={index} className="relative w-[420px] h-[105px] bg-white rounded-md">
               <div className="absolute w-[70px] h-[76.25px] left-[20px] top-[15px]">
-                <img src={images['image1.png']} alt="Company" className="w-full h-full object-cover" />
+                <img
+                  src={job.HinhURL ? `/images/${job.HinhURL}` : '/path/to/default/image1.png'}
+                  alt="Company"
+                  className="w-full h-full object-cover"
+                />
               </div>
-
               <div className="absolute left-[130px] top-[10px]">
-                <button className="text-base font-normal text-black mb-1 max-w-[220px] truncate">Tên vị trí ứng tuyển</button>
-                <p className="text-sm font-normal text-gray-400 mb-1 max-w-[250px] truncate">Tên công ty</p>
+                <button
+                  className="text-base font-normal text-black mb-1 max-w-[220px] truncate"
+                  onClick={() => navigate(`/job-details/${job.TTD_ID}`)} 
+                >
+                  {job.TieuDe}
+                </button>
+                <p className="text-sm font-normal text-gray-400 mb-1 max-w-[250px] truncate">{job.TenCongTy}</p>
               </div>
-
               <div className="absolute left-[130px] top-[65px] flex space-x-2 mt-2">
                 <div className="w-[80px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
-                  <p className="text-xs text-black">Giá</p>
+                  <p className="text-xs text-black">{job.MucLuong}</p>
                 </div>
                 <div className="w-[100px] h-[20px] bg-gray-300 rounded-md flex items-center justify-center">
-                  <p className="text-xs text-black">Địa điểm</p>
+                  <p className="text-xs text-black">{job.DiaDiem}</p>
                 </div>
               </div>
-
               <div className="absolute top-[8px] right-[10px] w-[45px] h-[20px] bg-red-500 rounded-full flex items-center justify-center">
                 <p className="text-xs text-white">Hot</p>
               </div>
             </div>
-          ))}
-        </div>
-        
-        <div className="relative w-full h-full left-[680px] top-[20px]">
-          <div className="absolute w-[187px] h-[40px] bg-[#F1F3F4] flex items-center justify-between px-2"> 
-            <button className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer">
-              <img 
-                src={images['icon_page_left.png']} 
-                alt="Icon 9" 
-                className="w-[30px] h-[30px] object-cover"
-              />
-            </button>
-            
-            <div className="flex-grow flex items-center justify-center">
-              <p className="font-inter font-normal text-base leading-[19px] text-[#A2A2A2]">
-                1/10 trang
-              </p>
-            </div>
+          ))
+        ) : (
+          <p>No jobs available</p>  // Fallback when currentJobs is empty or not an array
+        )}
+      </div>      
+      <div className="relative w-full h-full left-[680px] top-[20px]">
+        <div className="absolute w-[187px] h-[40px] bg-[#F1F3F4] flex items-center justify-between px-2"> 
+          <button 
+            className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer"
+            onClick={prevPage}
+            disabled={currentPage === 0} // Disabled when on the first page
+          >
+            <img 
+              src={images['icon_page_left.png']} 
+              alt="Previous Page" 
+              className="w-[30px] h-[30px] object-cover"
+            />
+          </button>
 
-            <button className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer">
-              <img 
-                src={images['icon_page_right.png']} 
-                alt="Icon 136" 
-                className="w-[30px] h-[30px] object-cover"
-              />
-            </button>
+          <div className="flex-grow flex items-center justify-center">
+            <p className="font-inter font-normal text-base leading-[19px] text-[#A2A2A2]">
+              {currentPage + 1} / {totalPages} pages  {/* Displaying 1-based page numbers */}
+            </p>
           </div>
+
+          <button 
+            className="flex items-center justify-center w-[40px] h-[40px] bg-transparent border-none cursor-pointer"
+            onClick={nextPage}
+            disabled={currentPage === totalPages - 1} // Disabled when on the last page
+          >
+            <img 
+              src={images['icon_page_right.png']} 
+              alt="Next Page" 
+              className="w-[30px] h-[30px] object-cover"
+            />
+          </button>
         </div>
+      </div>
       </div>
 
 
@@ -340,12 +381,12 @@ const HomePage = () => {
             <div className="w-[300px] h-[40px] bg-white border border-[#C3C3C3] border-opacity-80 rounded-[5px] flex items-center ml-[150px]">
               <img src={images['icon_filter.png']} className="w-[20px] h-[20px] mx-4" alt="Icon filter" />
               <span className="text-base leading-[20px] font-semibold text-[#CCCCCC] mr-4">Lọc theo:</span>
-              <span className="text-sm leading-[20px] font-bold text-gray-600">{selectedFilter1}</span>
+              <span className="text-sm leading-[20px] font-bold text-gray-600">{selectedFilter}</span>
               <img
                 src={images['icon_down_arrow_black.png']}
                 alt="dropdown-icon"
                 className="w-[20px] h-[20px] ml-auto mr-[10px] cursor-pointer"
-                onClick={toggleFilterDropdown1}
+                onClick={toggleFilterDropdown}
               />
             </div>
 
@@ -355,8 +396,8 @@ const HomePage = () => {
                   {filterOptions1.map((option, index) => (
                     <p
                       key={index}
-                      className={`font-normal text-base cursor-pointer ${selectedFilter1 === option ? 'text-[#1A73E8]' : 'text-black'}`}
-                      onClick={() => handleFilterClick1(option)}
+                      className={`font-normal text-base cursor-pointer ${selectedFilter === option ? 'text-[#1A73E8]' : 'text-black'}`}
+                      onClick={() => handleFilterClick(option)}
                     >
                       {option}
                     </p>

@@ -1,13 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import images from '../../images';
 
 const Saved_Jobs = () => {
     const [selectedIcon, setSelectedIcon] = useState('Cập nhật gần đây'); 
+    const [savedJobs, setSavedJobs] = useState([]);  // Lưu danh sách công việc yêu thích
+    const [jobDetails, setJobDetails] = useState({});  // Lưu chi tiết công việc yêu thích
+    const [loading, setLoading] = useState(true);
 
     const handleIconClick = (iconType) => {
         setSelectedIcon(iconType); 
     };
 
+    // Lấy các công việc yêu thích từ localStorage và API khi component được render
+    useEffect(() => {
+        // Lấy danh sách các công việc yêu thích từ localStorage
+        const savedJobIds = Object.keys(localStorage)
+            .filter(key => key.startsWith('job-'))
+            .map(key => key.replace('job-', ''));  // Lấy các jobId từ localStorage
+
+        setSavedJobs(savedJobIds);  // Cập nhật savedJobs với ID công việc từ localStorage
+
+        if (savedJobIds.length > 0) {
+            // Gọi API để lấy chi tiết từng công việc đã lưu
+            const jobDetailsPromises = savedJobIds.map((jobId) => 
+                axios.get(`http://localhost:5000/api/job-details/${jobId}`)  // Gọi API lấy thông tin chi tiết công việc
+                    .then(response => response.data)
+                    .catch(error => {
+                        console.error(`Error fetching details for job ${jobId}:`, error);
+                        return null;  // Tránh lỗi nếu không lấy được dữ liệu
+                    })
+            );
+
+            // Sau khi lấy tất cả dữ liệu, cập nhật jobDetails
+            Promise.all(jobDetailsPromises)
+                .then((details) => {
+                    const jobDetailsMap = details.filter(detail => detail !== null).reduce((acc, detail) => {
+                        acc[detail.jobId] = detail;  // Giả sử mỗi công việc có trường jobId
+                        return acc;
+                    }, {});
+                    setJobDetails(jobDetailsMap);  // Lưu thông tin công việc vào state
+                })
+                .finally(() => setLoading(false));  // Hoàn tất việc lấy dữ liệu
+        } else {
+            setLoading(false);  // Nếu không có công việc yêu thích, hoàn tất việc tải
+        }
+    }, []);  // useEffect sẽ chạy khi component được render lần đầu
+
+// Hàm xử lý khi nhấn nút yêu thích
+const handleSaveJob = (jobId) => {
+    // Cập nhật danh sách công việc yêu thích bằng cách lọc bỏ công việc đã chọn
+    const updatedJobs = savedJobs.filter(job => job.ID !== jobId);
+
+    // Cập nhật lại danh sách savedJobs
+    setSavedJobs(updatedJobs);  // setSavedJobs là hàm để cập nhật trạng thái của savedJobs
+
+    // Thông báo công việc đã xóa
+    alert('Công việc đã được xóa khỏi danh sách yêu thích');
+};
+
+    // Hàm tính toán ngày còn lại
+    const calculateDaysLeft = (deadline) => {
+        const today = new Date();
+        const deadlineDate = new Date(deadline);
+        const timeDiff = deadlineDate - today;
+        const daysLeft = Math.floor(timeDiff / (1000 * 3600 * 24)); // Tính số ngày còn lại
+        return daysLeft > 0 ? daysLeft : 0;  // Trả về số ngày còn lại hoặc 0 nếu hết hạn
+    };
+
+    if (loading) {
+        return <div>Loading...</div>;  // Chờ dữ liệu từ API
+    }
+    
+    
     return (
         <div className="relative w-full h-[1100px] top-[180px] bg-[#FAF9F9]">
             <div className="absolute w-[600px] h-[510px] left-[60px] top-[50px]">
@@ -22,7 +87,7 @@ const Saved_Jobs = () => {
                     </div>
 
                     <div className="absolute left-[40px] top-[120px] text-black font-normal text-[16px] leading-[19px]">
-                        Danh sách việc làm đã lưu: 1
+                        Danh sách việc làm đã lưu: {savedJobs.length}
                     </div>
 
                     <div className="absolute left-0 top-[150px] w-full border-t border-[#D9D9D9]"></div>
@@ -61,51 +126,60 @@ const Saved_Jobs = () => {
                         </div>
                     </div>
 
-                    {/* Danh sách công việc */}
                     <div className="absolute left-[40px] top-[220px] right-[40px] bottom-[10px] overflow-hidden max-h-[800px]">
                         <div className="flex flex-col space-y-4">
-                            {[1, 2, 3, 4].map((_, index) => (
+                            {savedJobs.map((job, index) => (
                                 <div
-                                    key={index}
+                                    key={job.ID}  // Sử dụng job.ID làm key để đảm bảo tính duy nhất
                                     className="relative w-full h-[150px] bg-white border border-[#C5C0C0] rounded-[5px] p-4 flex items-center"
                                 >
+                                    {/* Hình ảnh công việc */}
                                     <img
-                                        src={images['image1.png']}
+                                        src={job.HinhURL ? `/images/${job.HinhURL}` : '/path/to/default/image1.png'}
                                         alt="Job Image"
                                         className="w-[90px] h-[98.04px] object-cover"
                                     />
 
+                                    {/* Tiêu đề công việc */}
                                     <button className="absolute left-[150px] top-[10px] font-normal text-base leading-[19px] text-black">
-                                        Tên vị trí ứng tuyển
+                                        {job.TieuDe}
                                     </button>
 
+                                    {/* Mức lương */}
                                     <div className="absolute right-[60px] top-[20px] font-bold text-lg leading-[19px] text-[#1A73E8]">
-                                        Giá
+                                        {job.MucLuong}
                                     </div>
 
+                                    {/* Tên công ty */}
                                     <button className="absolute left-[150px] top-[40px] font-normal text-sm leading-[15px] text-[#A2A2A2]">
-                                        Tên công ty
+                                        {job.TenCongTy}
                                     </button>
 
+                                    {/* Địa điểm */}
                                     <div className="absolute w-[100px] left-[150px] top-[70px] bg-[#D9D9D9] rounded-[5px] p-1 text-black text-xs leading-[15px] flex items-center justify-center">
-                                        Địa điểm
+                                        {job.DiaDiem}
                                     </div>
 
+                                    {/* Cập nhật */}
                                     <div className="absolute w-[180px] left-[150px] top-[105px] bg-[#D9D9D9] rounded-[5px] p-1 font-normal text-xs leading-[15px] text-black flex items-center justify-center">
                                         Cập nhật 1 tuần trước
                                     </div>
 
+                                    {/* Thời gian còn lại */}
                                     <div className="absolute w-[180px] left-[260px] top-[70px] bg-[#D9D9D9] rounded-[5px] p-1 font-normal text-xs leading-[15px] text-black flex items-center justify-center">
-                                        Còn 14 ngày để ứng tuyển
+                                        Còn {calculateDaysLeft(job.Deadline)} ngày để ứng tuyển
                                     </div>
 
+                                    {/* Các nút hành động */}
                                     <div className="absolute right-[10px] bottom-[10px] flex items-center space-x-2">
+                                        {/* Nút ứng tuyển */}
                                         <button className="w-[110px] h-[30px] bg-[#1A73E8] rounded-[5px] flex items-center justify-center">
                                             <span className="font-bold text-base leading-[18px] text-white">
                                                 Ứng tuyển
                                             </span>
                                         </button>
 
+                                        {/* Nút xóa */}
                                         <button className="w-[30px] h-[30px] bg-[#F1F3F4] rounded-[5px] flex items-center justify-center">
                                             <img
                                                 src={images['icon_trash_can.png']}
@@ -114,10 +188,14 @@ const Saved_Jobs = () => {
                                             />
                                         </button>
 
-                                        <button className="w-[30px] h-[30px] bg-[#E0EDFF] rounded-[5px] flex items-center justify-center">
+                                        {/* Nút yêu thích */}
+                                        <button
+                                            className="w-[30px] h-[30px] bg-[#E0EDFF] rounded-[5px] flex items-center justify-center"
+                                            onClick={() => handleSaveJob(job.ID)}  // Gọi hàm lưu/xóa công việc yêu thích
+                                        >
                                             <img
-                                                src={images['icon_heart_blue.png']}
-                                                alt="Icon 2"
+                                                src={savedJobs.some(savedJob => savedJob.ID === job.ID) ? images['icon_heart_red.png'] : images['icon_heart_blue.png']}
+                                                alt="Icon"
                                                 className="w-[20px] h-[20px] object-cover"
                                             />
                                         </button>

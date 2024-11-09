@@ -13,7 +13,7 @@ function Login() {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
-  
+
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -26,9 +26,18 @@ function Login() {
       const data = await response.json();
   
       if (response.ok) {
-        // If login is successful, save account data to localStorage
-        localStorage.setItem('accountData', JSON.stringify({ email }));
-        navigate('/home-logged-in', { state: { email } });
+        // Kiểm tra xem userID có tồn tại trong phản hồi không
+        console.log(data);  // Xem cấu trúc phản hồi từ server
+  
+        // Lưu thông tin vào sessionStorage
+        sessionStorage.setItem('accountData', JSON.stringify({
+          email: email,
+          authToken: data.token,
+          userID: data.userID  // Lưu userID nếu có
+        }));
+  
+        // Điều hướng đến trang đăng nhập thành công
+        navigate('/home-logged-in', { state: { email, userID: data.userID } });
       } else {
         setErrorMessage(data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
       }
@@ -40,6 +49,7 @@ function Login() {
     }
   };
 
+  
   return (
     <div className="relative w-full h-[1080px] bg-white">
       <h1 className="absolute left-[154px] top-[65px] text-[#1A73E8] font-bold text-4xl leading-[44px]">

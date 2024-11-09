@@ -7,47 +7,45 @@ const OTPVerification = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email; // Lấy email từ trang đăng ký
+  const email = location.state?.email;
 
   const handleVerifyOTP = async () => {
     setErrorMessage('');
     setSuccessMessage('');
-
-    if (!otp) {
-      setErrorMessage('Bạn phải nhập mã OTP!');
-      return;
-    }
-
-    try {
-      // Gửi OTP và email tới backend để xác thực
-      const response = await fetch('http://localhost:5000/OTPVerification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, verificationToken: otp }), // gửi OTP và email
-      });
-      const result = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage(result.message);
-        setTimeout(() => {
-          navigate('/login'); // Điều hướng đến trang đăng nhập sau khi xác thực thành công
-        }, 2000); // Thời gian đợi 2 giây trước khi chuyển hướng
-      } else {
-        setErrorMessage(result.message || 'Mã OTP không chính xác. Vui lòng thử lại.');
+    
+      // Check if OTP array is filled
+      if (otp.includes('')) {
+        setErrorMessage('Bạn phải nhập mã OTP!');
+        return;
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setErrorMessage('Đã có lỗi xảy ra. Vui lòng thử lại.');
-    }
-  };
+    
+      try {
+        const response = await fetch('http://localhost:5000/OTPVerification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, verificationToken: otp.join('') }), // Convert OTP array to a single string
+        });
+        const result = await response.json();
+    
+        if (response.ok) {
+          setSuccessMessage(result.message);
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        } else {
+          setErrorMessage(result.message || 'Mã OTP không chính xác. Vui lòng thử lại.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setErrorMessage('Đã có lỗi xảy ra. Vui lòng thử lại.');
+      }
+    };
 
-  // Hàm xử lý thay đổi giá trị của các ô input
   const handleInputChange = (e, index) => {
     const newOtp = [...otp];
-    newOtp[index] = e.target.value;  // Cập nhật giá trị cho ô tương ứng
-    setOTP(newOtp);  // Sửa từ setOtp thành setOTP
+    newOtp[index] = e.target.value;
+    setOTP(newOtp);
 
-    // Chuyển focus đến ô input tiếp theo nếu đã nhập đầy đủ ký tự
     if (e.target.value.length === 1 && index < 5) {
       const nextSibling = e.target.nextElementSibling;
       if (nextSibling) {
@@ -69,20 +67,23 @@ const OTPVerification = () => {
                 key={index}
                 type="text"
                 maxLength="1"
-                value={otp[index]}  // Gắn giá trị từ state vào các ô input
-                onChange={(e) => handleInputChange(e, index)}  // Gọi hàm xử lý khi có thay đổi
+                value={otp[index]}
+                onChange={(e) => handleInputChange(e, index)}
                 className="w-[50px] h-[50px] bg-white border border-[#BBB6B6] rounded-lg text-center text-lg font-semibold"
               />
             ))}
           </div>
 
-          <button
-            className="mt-6 w-[400px] h-[60px] bg-[#1A73E8] text-white text-[24px] font-bold leading-[29px] rounded-[5px]"
-            onClick={handleVerifyOTP}>
-            Xác nhận
-          </button>
-            {errorMessage && <div className="mt-4 text-red-800">{errorMessage}</div>}
-            {successMessage && <div className="mt-4 text-green-800">{successMessage}</div>}
+          <div className="flex flex-col items-center">
+            <button
+              className="w-[400px] h-[60px] bg-[#1A73E8] text-white text-[24px] font-bold leading-[29px] rounded-[5px] flex items-center justify-center mb-4"
+              onClick={handleVerifyOTP}
+            >
+              Xác nhận
+            </button>
+            {errorMessage && <div className="text-red-800 text-center">{errorMessage}</div>}
+            {successMessage && <div className="text-green-800 text-center">{successMessage}</div>}
+          </div>
         </div>
       </div>
     </div>

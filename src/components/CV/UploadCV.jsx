@@ -1,76 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useRef  } from 'react';
 import images from '../../images';
+import axios from 'axios';
 
 const UploadCV = () => {
   const [cvFile, setCvFile] = useState(null);
   const [message, setMessage] = useState('');
   const [selectedFileName, setSelectedFileName] = useState('');
-  const [email, setEmail] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [jobPosition, setJobPosition] = useState('');
+  const [cvTitle, setCvTitle] = useState(''); // Đảm bảo biến này được sử dụng đúng
+  const [loading, setLoading] = useState(false);
+  const [showTitleForm, setShowTitleForm] = useState(false);
+  const fileInput = useRef(null);
 
-  useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    const authToken = localStorage.getItem('authToken');
-  
-    console.log('userData:', userData); 
-    console.log('authToken:', authToken); 
-  
-    if (userData && authToken) {
-      setEmail(userData.email);
-      setFullName(userData.fullName);
-      setJobPosition(userData.jobPosition);
-    } else {
-      setMessage('Vui lòng đăng nhập để tải CV lên');
-    }
-  }, []);
-
+  // Handle file selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setCvFile(file);
-    setSelectedFileName(file.name);
+    if (file) {
+      setSelectedFileName(file.name);
+      setCvFile(file);
+      console.log('Selected file:', file); // Log file data for debugging
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Handle title input change
+  const handleTitleChange = (e) => {
+    setCvTitle(e.target.value);
+  };
 
-    if (!cvFile) {
-      setMessage('Vui lòng chọn tệp CV để tải lên');
+  // Handle form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!cvFile || !cvTitle) {
+      alert('Vui lòng chọn tệp và nhập tiêu đề!');
       return;
     }
 
     const formData = new FormData();
-    formData.append('cvFile', cvFile); // Tệp CV
-    formData.append('email', email); // Email người dùng gửi tới backend
+    formData.append('cvFile', cvFile); // cvFile is the file to upload
+    formData.append('TieuDe', cvTitle); // Using cvTitle for the title input
+
+    setLoading(true); // Start loading indicator
 
     try {
-      const token = localStorage.getItem('authToken');
-
       const response = await axios.post('http://localhost:5000/uploadCV', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`,
         },
       });
+      setMessage('Tải lên thành công');
+      console.log('Upload thành công:', response.data);
 
-      setMessage(response.data.message || 'CV đã được tải lên thành công!');
-      // Reset the form after successful upload
+      // Reset file input and title after successful upload
       setCvFile(null);
       setSelectedFileName('');
+      setCvTitle('');
+      fileInput.current.value = ''; // Reset file input
+
     } catch (error) {
-      setMessage('Đã xảy ra lỗi khi tải lên CV');
-      console.error('Lỗi:', error);
+      console.error('Lỗi khi tải lên:', error);
+      setMessage('Lỗi khi tải lên CV: ' + (error.response ? error.response.data : error.message));
+    } finally {
+      setLoading(false); // Stop loading indicator
     }
   };
-
-  if (!email || !fullName || !jobPosition) {
-    return (
-      <div className="text-center mt-10">
-        <p className="text-lg font-bold text-red-500">{message}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="relative w-full h-[1100px] bg-[#FAF9F9] border-black">
@@ -108,28 +100,55 @@ const UploadCV = () => {
               className="hidden"
               id="file-upload"
             />
-            <label htmlFor="file-upload" className="w-[120px] h-[45px] bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer">
+            <label htmlFor="file-upload" className="w-[200px] h-[45px] bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer">
               <span className="text-black font-normal text-lg">{selectedFileName || 'Chọn CV'}</span>
             </label>
           </div>
-        </div>
 
-        <div className="flex justify-center gap-4 mt-[420px]">
-          <button
-            className="w-[150px] h-[45px] bg-blue-500 rounded-lg"
-            onClick={handleSubmit}
-          >
-            <span className="text-white font-bold text-lg">Tải CV lên</span>
-          </button>
+          {selectedFileName && (
+            <div className="flex justify-center gap-4">
+              <button
+                className="w-[150px] h-[40px] bg-blue-500 rounded-lg mt-11"
+                onClick={() => setShowTitleForm(true)} // Show title form
+              >
+                <span className="text-white font-bold text-lg">Tải CV lên</span>
+              </button>
+            </div>
+          )}
+
+          {showTitleForm && (
+            <div className="flex justify-center mt-[30px]">
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-4">
+                  <input
+                    type="text"
+                    value={cvTitle}
+                    onChange={handleTitleChange}
+                    placeholder="Nhập tiêu đề CV"
+                    className="w-[300px] h-[45px] border border-gray-300 rounded-lg p-2"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="w-[150px] h-[45px] bg-blue-500 rounded-lg"
+                    disabled={loading} // Disable button while loading
+                  >
+                    {loading ? 'Đang tải...' : 'Xác nhận'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
 
         {message && (
           <div className="flex justify-center mt-4">
-            <p className="text-center text-lg font-bold text-green-500">{message}</p>
+            <p className={`text-center text-lg font-bold ${message.includes('Lỗi') ? 'text-red-500' : 'text-green-500'}`}>
+              {message}
+            </p>
           </div>
         )}
-
-        <div className="flex flex-col items-center space-y-10 mt-[20px]">
+        <div className="flex flex-col items-center space-y-10 mt-[480px]">
           <div className="flex space-x-10">
             <div className="w-[600px] h-[180px] bg-white border border-gray-400 rounded-md p-6 flex flex-col items-center text-center">
               <div className="w-[60px] h-[60px] bg-green-100 rounded-full flex justify-center items-center mb-4">

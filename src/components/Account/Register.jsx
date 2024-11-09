@@ -3,7 +3,7 @@ import images from '../../images';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
-  const [fullName, setFullName] = useState('');
+  const [hoTen, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,7 +29,7 @@ const Register = () => {
     setErrorMessage('');
 
     // Kiểm tra thông tin nhập vào
-    if (!fullName) {
+    if (!hoTen) {
       setErrorMessage('Bạn phải nhập họ tên!');
       return;
     }
@@ -59,7 +59,7 @@ const Register = () => {
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, password, role: 'Người Tìm Việc' }), // Gửi role mặc định là Job Seeker
+        body: JSON.stringify({ hoTen, email, password, role: 'Người Tìm Việc' }), // Gửi role mặc định là Job Seeker
       });
       const result = await response.json();
 
@@ -94,7 +94,7 @@ const Register = () => {
           type="text"
           placeholder="Nhập họ tên..."
           className="ml-[15px] placeholder-[#A2A2A2] text-[20px] leading-[24px] outline-none w-full pr-[45px]"
-          value={fullName}
+          value={hoTen}
           onChange={(e) => setFullName(e.target.value)}
         />
       </div>
@@ -160,7 +160,7 @@ const Register = () => {
       >
         Đăng ký
       </button>
-      {errorMessage && <div className="absolute left-[154px] top-[900px] text-red-800">{errorMessage}</div>}
+      {errorMessage && <div className="absolute left-[154px] top-[935px] text-red-800 text-xl">{errorMessage}</div>}
 
       <button className="absolute left-[398px] top-[900px] text-[#A2A2A2] font-normal text-[20px] leading-[24px]" 
         onClick={() => navigate('/login')} >Bạn đã có tài khoản? Đăng nhập ngay</button>
